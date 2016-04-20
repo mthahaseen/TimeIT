@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/card_view"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="#FFFFFF"
+    android:layout_margin="2dp"
+    card_view:cardUseCompatPadding="true">
+
+    <RelativeLayout
+        android:id="@+id/layout_item"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <com.overclocked.timeit.common.ScaleImageView
+            android:id="@+id/imgViewCompany"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/blur_dark"/>
+            <TextView
+                android:id="@+id/txtHomeBookTitle"
+                android:textSize="15sp"
+                android:textColor="#FFFFFF"
+                android:background="#55000000"
+                android:padding="10dp"
+                android:text="Cognizant Technology Solutions"
+                android:gravity="center"
+                android:layout_alignParentBottom="true"
+                android:fontFamily="sans-serif-light"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+    </RelativeLayout>
+</android.support.v7.widget.CardView>
