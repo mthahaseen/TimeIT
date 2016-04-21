@@ -1,31 +1,43 @@
 package com.overclocked.timeit.activity;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.overclocked.timeit.AppController;
 import com.overclocked.timeit.R;
 import com.overclocked.timeit.common.AppConstants;
+import com.overclocked.timeit.common.AppUtil;
 import com.overclocked.timeit.fragments.DaysDialogFragment;
 import com.overclocked.timeit.fragments.TimePickerDialogFragment;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class TimeConfigureActivity extends FragmentActivity implements DaysDialogFragment.onDaySelectListener, TimePickerDialogFragment.onTimeSelectedListener {
+public class TimeConfigureActivity extends AppCompatActivity implements DaysDialogFragment.onDaySelectListener, TimePickerDialogFragment.onTimeSelectedListener {
 
     @Bind(R.id.txtSwipeHours) TextView txtSwipeHours;
     @Bind(R.id.txtSwipeMinutes) TextView txtSwipeMinutes;
     @Bind(R.id.txtWorkDayStart) TextView txtWorkDayStart;
     @Bind(R.id.txtWorkDayEnd) TextView txtWorkDayEnd;
-    @Bind(R.id.editInTime) Button editInTime;
-    @Bind(R.id.editOutTime) Button editOutTime;
+    @Bind(R.id.editInTime) ImageView editInTime;
+    @Bind(R.id.editOutTime) ImageView editOutTime;
+    @Bind(R.id.editStartDay) ImageView editStartDay;
+    @Bind(R.id.editEndDay) ImageView editEndDay;
     @Bind(R.id.txtInTime) TextView txtInTime;
     @Bind(R.id.txtOutTime) TextView txtOutTime;
+    @Bind(R.id.btnTimeConfigDone) Button btnTimeConfigDone;
+    @Bind(R.id.toolbar) Toolbar toolbar;
 
     int dayStart = 2;
     int dayEnd = 6;
@@ -35,56 +47,124 @@ public class TimeConfigureActivity extends FragmentActivity implements DaysDialo
     int officeOutHour = 18;
     int officeOutMinute = 30;
 
+    private SharedPreferences preferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_time_configure);
         ButterKnife.bind(this);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Time Settings");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        preferences = PreferenceManager.getDefaultSharedPreferences(TimeConfigureActivity.this);
         txtWorkDayStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DaysDialogFragment dialog = new DaysDialogFragment();
-                Bundle args = new Bundle();
-                args.putBoolean("isStart", true);
-                dialog.setArguments(args);
-                dialog.show(getSupportFragmentManager(), "daysDialog");
+                startDay();
             }
         });
         txtWorkDayEnd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DaysDialogFragment dialog = new DaysDialogFragment();
-                Bundle args = new Bundle();
-                args.putBoolean("isStart", false);
-                args.putInt("exclude", dayStart);
-                dialog.setArguments(args);
-                dialog.show(getSupportFragmentManager(),"daysDialog");
+                endDay();
+            }
+        });
+        editStartDay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startDay();
+            }
+        });
+        editEndDay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                endDay();
+            }
+        });
+        txtInTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                officeInTime();
+            }
+        });
+        txtOutTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                officeOutTime();
             }
         });
         editInTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TimePickerDialogFragment timePickerDialogFragment = new TimePickerDialogFragment();
-                Bundle args = new Bundle();
-                args.putInt("hour",officeInHour);
-                args.putInt("minute", officeInMinute);
-                args.putBoolean("isInTime", true);
-                timePickerDialogFragment.setArguments(args);
-                timePickerDialogFragment.show(getSupportFragmentManager(),"timerDialog");
+                officeInTime();
             }
         });
         editOutTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TimePickerDialogFragment timePickerDialogFragment = new TimePickerDialogFragment();
-                Bundle args = new Bundle();
-                args.putInt("hour",officeOutHour);
-                args.putInt("minute",officeOutMinute);
-                args.putBoolean("isInTime", false);
-                timePickerDialogFragment.setArguments(args);
-                timePickerDialogFragment.show(getSupportFragmentManager(),"timerDialog");
+                officeOutTime();
             }
         });
+        btnTimeConfigDone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(txtInTime.getText().toString().equals("Set Time")){
+                    Toast.makeText(TimeConfigureActivity.this,"Set your approximate office in time",Toast.LENGTH_SHORT).show();
+                }else if(txtOutTime.getText().toString().equals("Set Time")){
+                    Toast.makeText(TimeConfigureActivity.this,"Set your approximate office out time",Toast.LENGTH_SHORT).show();
+                }else{
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putBoolean(AppConstants.PREF_INITIAL_TIME_CONFIG, true);
+                    editor.putLong(AppConstants.PREF_AVG_SWIPE_MILLIS, AppUtil.convertHoursMinutesToMillis(Integer.parseInt(txtSwipeHours.getText().toString()), Integer.parseInt(txtSwipeMinutes.getText().toString())));
+                    editor.putInt(AppConstants.PREF_START_DAY, dayStart);
+                    editor.putInt(AppConstants.PREF_END_DAY, dayEnd);
+                    editor.putLong(AppConstants.PREF_APPROX_OFFICE_IN_TIME_MILLIS, AppUtil.convertHoursMinutesToMillis(officeInHour, officeInMinute));
+                    editor.putLong(AppConstants.PREF_APPROX_OFFICE_OUT_TIME_MILLIS, AppUtil.convertHoursMinutesToMillis(officeOutHour, officeOutMinute));
+                    editor.commit();
+                    Intent intent = new Intent(TimeConfigureActivity.this,HomeActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        });
+    }
+
+    public void officeOutTime(){
+        TimePickerDialogFragment timePickerDialogFragment = new TimePickerDialogFragment();
+        Bundle args = new Bundle();
+        args.putInt("hour", officeOutHour);
+        args.putInt("minute", officeOutMinute);
+        args.putBoolean("isInTime", false);
+        timePickerDialogFragment.setArguments(args);
+        timePickerDialogFragment.show(getSupportFragmentManager(), "timerDialog");
+    }
+
+    public void officeInTime(){
+        TimePickerDialogFragment timePickerDialogFragment = new TimePickerDialogFragment();
+        Bundle args = new Bundle();
+        args.putInt("hour", officeInHour);
+        args.putInt("minute", officeInMinute);
+        args.putBoolean("isInTime", true);
+        timePickerDialogFragment.setArguments(args);
+        timePickerDialogFragment.show(getSupportFragmentManager(), "timerDialog");
+    }
+
+    public void startDay(){
+        DaysDialogFragment dialog = new DaysDialogFragment();
+        Bundle args = new Bundle();
+        args.putBoolean("isStart", true);
+        dialog.setArguments(args);
+        dialog.show(getSupportFragmentManager(), "daysDialog");
+    }
+
+    public void endDay(){
+        DaysDialogFragment dialog = new DaysDialogFragment();
+        Bundle args = new Bundle();
+        args.putBoolean("isStart", false);
+        args.putInt("exclude", dayStart);
+        dialog.setArguments(args);
+        dialog.show(getSupportFragmentManager(),"daysDialog");
     }
 
     public void averageHoursClick(View v){
@@ -154,7 +234,12 @@ public class TimeConfigureActivity extends FragmentActivity implements DaysDialo
             officeOutHour = hour;
             officeOutMinute = minute;
         }
-        showTime(hour,minute,isInTime);
+        String newTime = AppUtil.showTimeInTwelveHours(hour, minute);
+        if(isInTime){
+            txtInTime.setText(newTime);
+        }else{
+            txtOutTime.setText(newTime);
+        }
     }
 
     public int getDaysDifference(int start, int end){
@@ -165,33 +250,24 @@ public class TimeConfigureActivity extends FragmentActivity implements DaysDialo
         }
     }
 
-    public void showTime(int hour, int min , boolean isInTime) {
-        String format;
-        if (hour == 0) {
-            hour += 12;
-            format = "AM";
-        }
-        else if (hour == 12) {
-            format = "PM";
-        } else if (hour > 12) {
-            hour -= 12;
-            format = "PM";
-        } else {
-            format = "AM";
-        }
-        String minutes;
-        if(String.valueOf(min).length()==1){
-            minutes = "0" + min;
-        }else{
-            minutes = ""+min;
-        }
-        if(isInTime) {
-            txtInTime.setText(new StringBuilder().append(hour).append(" : ").append(minutes)
-                    .append(" ").append(format));
-        }else{
-            txtOutTime.setText(new StringBuilder().append(hour).append(" : ").append(minutes)
-                    .append(" ").append(format));
-        }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(TimeConfigureActivity.this, CompanySelectActivity.class);
+        startActivity(intent);
+        finish();
+    }
 }

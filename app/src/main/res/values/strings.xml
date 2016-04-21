@@ -1,8 +1,9 @@
 <resources>
     <string name="app_name">Time IT</string>
+    <string name="select_your_company">Select Your Company</string>
+    <string name="set_time">Set Time</string>
 
     <string name="title_activity_fullscreen">FullscreenActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
-    <string name="title_activity_time_configure">TimeConfigureActivity</string>
 </resources>

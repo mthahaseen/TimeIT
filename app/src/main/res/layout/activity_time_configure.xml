@@ -3,17 +3,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:background="@drawable/blur_dark"
+    android:background="@drawable/simple_blur"
     tools:context=".activity.TimeConfigureActivity">
+
+    <include layout="@layout/app_toolbar"/>
+
+    <ScrollView
+        android:layout_below="@+id/toolbar"
+        android:layout_above="@+id/btnTimeConfigDone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
     <TextView
         android:id="@+id/lblSelectCompany"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:gravity="center"
         android:textSize="25sp"
         android:textColor="#FFFFFF"
@@ -152,18 +160,25 @@
                     android:layout_height="30dp"
                     android:textColor="#FFFFFF"
                     android:textSize="16sp"
-                    android:paddingLeft="25dp"
-                    android:paddingRight="25dp"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="20dp"
                     android:gravity="center_vertical"
                     android:background="#33000000"
                     android:fontFamily="sans-serif-light"
                     android:text="Monday"/>
+                <ImageView
+                    android:id="@+id/editStartDay"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginLeft="5dp"
+                    android:src="@drawable/ic_create_white_48dp"
+                    android:layout_gravity="center_vertical"/>
             </LinearLayout>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#FFFFFF"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:layout_gravity="center_vertical"
                 android:fontFamily="sans-serif-light"
                 android:text="To"/>
@@ -179,12 +194,19 @@
                     android:layout_height="30dp"
                     android:textColor="#FFFFFF"
                     android:textSize="16sp"
-                    android:paddingLeft="25dp"
-                    android:paddingRight="25dp"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="20dp"
                     android:gravity="center_vertical"
                     android:background="#33000000"
                     android:fontFamily="sans-serif-light"
                     android:text="Friday"/>
+                <ImageView
+                    android:id="@+id/editEndDay"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginLeft="5dp"
+                    android:src="@drawable/ic_create_white_48dp"
+                    android:layout_gravity="center_vertical"/>
             </LinearLayout>
         </LinearLayout>
         <TextView
@@ -284,15 +306,14 @@
             android:padding="5dp"
             android:background="#33000000"
             android:fontFamily="sans-serif-light"
-            android:text="9 : 30 AM"/>
-        <Button
+            android:text="@string/set_time"/>
+        <ImageView
                 android:id="@+id/editInTime"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginLeft="10dp"
-                android:layout_gravity="center_vertical"
-                android:background="@android:color/white"
-                android:text="E"/>
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginLeft="5dp"
+                android:src="@drawable/ic_create_white_48dp"
+                android:layout_gravity="center_vertical"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="wrap_content"
@@ -309,15 +330,14 @@
                 android:padding="5dp"
                 android:background="#33000000"
                 android:fontFamily="sans-serif-light"
-                android:text="6 : 30 PM"/>
-            <Button
+                android:text="@string/set_time"/>
+            <ImageView
                 android:id="@+id/editOutTime"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginLeft="10dp"
-                android:layout_gravity="center_vertical"
-                android:background="@android:color/white"
-                android:text="E"/>
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginLeft="5dp"
+                android:src="@drawable/ic_create_white_48dp"
+                android:layout_gravity="center_vertical"/>
         </LinearLayout>
         </LinearLayout>
         <View
@@ -326,4 +346,16 @@
             android:layout_margin="14dp"
             android:background="#33FFFFFF"/>
     </LinearLayout>
+    </ScrollView>
+    <Button
+        android:id="@+id/btnTimeConfigDone"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="14dp"
+        android:layout_marginBottom="14dp"
+        android:text="DONE"
+        android:background="@android:color/white"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"/>
 </RelativeLayout>

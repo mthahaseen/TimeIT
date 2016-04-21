@@ -15,18 +15,17 @@
 
         <com.overclocked.timeit.common.ScaleImageView
             android:id="@+id/imgViewCompany"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/blur_dark"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
             <TextView
-                android:id="@+id/txtHomeBookTitle"
+                android:id="@+id/txtCompanyName"
+                android:layout_below="@+id/imgViewCompany"
                 android:textSize="15sp"
                 android:textColor="#FFFFFF"
-                android:background="#55000000"
+                android:background="#88000000"
                 android:padding="10dp"
                 android:text="Cognizant Technology Solutions"
                 android:gravity="center"
-                android:layout_alignParentBottom="true"
                 android:fontFamily="sans-serif-light"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
