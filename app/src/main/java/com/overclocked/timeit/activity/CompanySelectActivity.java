@@ -1,5 +1,6 @@
 package com.overclocked.timeit.activity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -35,6 +36,7 @@ import butterknife.ButterKnife;
 public class CompanySelectActivity extends AppCompatActivity {
     @Bind(R.id.recyclerViewCompany) RecyclerView recyclerViewCompany;
     @Bind(R.id.toolbar) Toolbar toolbar;
+    private ProgressDialog mProgress;
     List<Company> lstCompany = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,9 +49,14 @@ public class CompanySelectActivity extends AppCompatActivity {
         GridLayoutManager gridLayoutManager = new GridLayoutManager(CompanySelectActivity.this,2);
         recyclerViewCompany.setLayoutManager(gridLayoutManager);
         if(AppController.getInstance().getConnectionDetector().isConnectingToInternet()){
+            mProgress = new ProgressDialog(CompanySelectActivity.this);
+            mProgress.setCancelable(false);
+            mProgress.setMessage("Loading...");
+            mProgress.show();
             getCompanyDetails();
         }else{
             Toast.makeText(CompanySelectActivity.this,AppConstants.MSG_NO_INTERNET ,Toast.LENGTH_SHORT).show();
+            onBackPressed();
         }
     }
 
@@ -72,6 +79,7 @@ public class CompanySelectActivity extends AppCompatActivity {
                                 lstCompany.add(company);
                             }
                             populateRecyclerView();
+                            mProgress.dismiss();
                         }
                     } catch (JSONException e) {e.printStackTrace();}
                 }
@@ -80,6 +88,7 @@ public class CompanySelectActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.d("Get_Company", "Error: " + error.getMessage());
+                mProgress.dismiss();
             }
         });
         AppController.getInstance().addToRequestQueue(jsonReq);

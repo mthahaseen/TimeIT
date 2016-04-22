@@ -1,5 +1,8 @@
 package com.overclocked.timeit.common;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -32,7 +35,19 @@ public class AppUtil {
     }
 
     public static Long convertHoursMinutesToMillis(int hour, int minutes){
-        return TimeUnit.MINUTES.toMillis((hour*60) + minutes);
+        return TimeUnit.MINUTES.toMillis((hour * 60) + minutes);
+    }
+
+    public static String getDateAsText(Calendar calendar){
+        DateFormat df = new SimpleDateFormat("EEEE, d-MMM-yyyy");
+        String date = df.format(calendar.getTime());
+        return date;
+    }
+
+    public static int getWeekNumberOfTodayDate(){
+        Calendar cal = Calendar.getInstance();
+        int week = cal.get(Calendar.WEEK_OF_YEAR);
+        return week;
     }
 
 }

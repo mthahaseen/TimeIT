@@ -4,7 +4,6 @@
     android:id="@+id/card_view"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="#FFFFFF"
     android:layout_margin="2dp"
     card_view:cardUseCompatPadding="true">
 
@@ -22,7 +21,7 @@
                 android:layout_below="@+id/imgViewCompany"
                 android:textSize="15sp"
                 android:textColor="#FFFFFF"
-                android:background="#88000000"
+                android:background="#000000"
                 android:padding="10dp"
                 android:text="Cognizant Technology Solutions"
                 android:gravity="center"

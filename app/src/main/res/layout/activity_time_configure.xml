@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/simple_blur"
+    android:background="@color/colorPrimary"
     tools:context=".activity.TimeConfigureActivity">
 
     <include layout="@layout/app_toolbar"/>

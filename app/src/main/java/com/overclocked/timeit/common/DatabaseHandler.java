@@ -1,13 +1,17 @@
 package com.overclocked.timeit.common;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.overclocked.timeit.model.Days;
+import com.overclocked.timeit.model.SwipeData;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -22,10 +26,17 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     // Table names
     private static final String TABLE_DAYS = "days";
+    private static final String TABLE_SWIPE = "swipe";
 
     // Days Table Columns names
     private static final String DAY_ID = "id";
     private static final String DAY_NAME = "name";
+
+    // Swipe Table Columns names
+    private static final String SWIPE_WEEK_NUMBER = "week";
+    private static final String SWIPE_DATE = "swipedate";
+    private static final String SWIPE_IN_TIME= "intime";
+    private static final String SWIPE_OUT_TIME= "outtime";
 
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -34,11 +45,19 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-        String CREATE_CATEGORY_TABLE = "CREATE TABLE " + TABLE_DAYS + "("
+        String CREATE_DAYS_TABLE = "CREATE TABLE " + TABLE_DAYS + "("
                 + DAY_ID + " INTEGER,"
                 + DAY_NAME + " TEXT)";
 
-        db.execSQL(CREATE_CATEGORY_TABLE);
+        db.execSQL(CREATE_DAYS_TABLE);
+
+        String CREATE_SWIPE_TABLE = "CREATE TABLE " + TABLE_SWIPE + "("
+                + SWIPE_DATE + " TEXT,"
+                + SWIPE_WEEK_NUMBER + " INTEGER,"
+                + SWIPE_IN_TIME + " INTEGER,"
+                + SWIPE_OUT_TIME + " INTEGER)";
+
+        db.execSQL(CREATE_SWIPE_TABLE);
 
         // Insert days id and values initially
         db.execSQL("insert into days values(1,'Sunday');");
@@ -94,6 +113,57 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         c.close();
         db.close();
         return dayName;
+    }
+
+    public void addSwipeData(String swipeDate, int week, int startMillis, int endMillis){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(SWIPE_DATE, swipeDate);
+        contentValues.put(SWIPE_WEEK_NUMBER, week);
+        contentValues.put(SWIPE_IN_TIME, startMillis);
+        contentValues.put(SWIPE_OUT_TIME, endMillis);
+        db.insert(TABLE_SWIPE, null, contentValues);
+        db.close();
+    }
+
+    public boolean isWeekEntryAvailable(int week){
+        String selectQuery = "SELECT * FROM " + TABLE_SWIPE + " where " + SWIPE_WEEK_NUMBER + "=" + week;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(selectQuery, null);
+        if(c.getCount() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public void initializeWeekData(int weekNumber, int dayStart, int numberOfDays){
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat(AppConstants.SWIPE_DATE_FORMAT);
+        calendar.set(Calendar.WEEK_OF_YEAR, weekNumber);
+        calendar.set(Calendar.DAY_OF_WEEK, dayStart);
+        for(int i = 0 ; i < numberOfDays ; i++){
+            if(i != 0){ calendar.add(Calendar.DATE, 1);}
+            addSwipeData(sdf.format(calendar.getTime()), weekNumber, 0 , 0);
+        }
+    }
+
+    public List<SwipeData> getSwipeData(int week)
+    {
+        List<SwipeData> items = new ArrayList<>();
+        String selectQuery = "SELECT * FROM " + TABLE_SWIPE + " where " + SWIPE_WEEK_NUMBER + "=" + week;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(selectQuery, null);
+        if (c.moveToFirst()) {
+            do{
+                SwipeData swipe =  new SwipeData();
+                swipe.setSwipeDate(c.getString(c.getColumnIndex(SWIPE_DATE)));
+                items.add(swipe);
+            } while (c.moveToNext());
+        }
+        c.close();
+        db.close();
+        return items;
     }
 
 }
