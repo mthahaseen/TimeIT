@@ -137,6 +137,40 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
+    public boolean isTodayCheckInDone(){
+        boolean result = false;
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat(AppConstants.SWIPE_DATE_FORMAT);
+        String selectQuery = "SELECT * FROM " + TABLE_SWIPE + " where " + SWIPE_DATE + "='" + sdf.format(calendar.getTime()) + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(selectQuery, null);
+        if (c.moveToFirst()) {
+            if(c.getInt(c.getColumnIndex(SWIPE_IN_TIME)) == 0){
+                result = false;
+            }else{
+                result = true;
+            }
+        }
+        return result;
+    }
+
+    public boolean isTodayCheckOutDone(){
+        boolean result = false;
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat(AppConstants.SWIPE_DATE_FORMAT);
+        String selectQuery = "SELECT * FROM " + TABLE_SWIPE + " where " + SWIPE_DATE + "='" + sdf.format(calendar.getTime()) + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(selectQuery, null);
+        if (c.moveToFirst()) {
+            if(c.getInt(c.getColumnIndex(SWIPE_OUT_TIME)) == 0){
+                result = false;
+            }else{
+                result = true;
+            }
+        }
+        return result;
+    }
+
     public void initializeWeekData(int weekNumber, int dayStart, int numberOfDays){
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat(AppConstants.SWIPE_DATE_FORMAT);
@@ -158,12 +192,28 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             do{
                 SwipeData swipe =  new SwipeData();
                 swipe.setSwipeDate(c.getString(c.getColumnIndex(SWIPE_DATE)));
+                swipe.setSwipeInTime(c.getLong(c.getColumnIndex(SWIPE_IN_TIME)));
+                swipe.setSwipeOutTime(c.getLong(c.getColumnIndex(SWIPE_OUT_TIME)));
                 items.add(swipe);
             } while (c.moveToNext());
         }
         c.close();
         db.close();
         return items;
+    }
+
+    public void updateSwipeInTime(String swipeDate, Long timeInMillis) {
+        String Query = "update swipe set intime =" + timeInMillis + " where swipedate='" + swipeDate + "'";
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(Query);
+        db.close();
+    }
+
+    public void updateSwipeOutTime(String swipeDate, Long timeInMillis) {
+        String Query = "update swipe set outtime =" + timeInMillis + " where swipedate='" + swipeDate + "'";
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(Query);
+        db.close();
     }
 
 }

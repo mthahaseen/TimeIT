@@ -3,6 +3,7 @@ package com.overclocked.timeit.common;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -39,7 +40,7 @@ public class AppUtil {
     }
 
     public static String getDateAsText(Calendar calendar){
-        DateFormat df = new SimpleDateFormat("EEEE, d-MMM-yyyy");
+        DateFormat df = new SimpleDateFormat(AppConstants.SWIPE_DATE_FORMAT);
         String date = df.format(calendar.getTime());
         return date;
     }
@@ -48,6 +49,20 @@ public class AppUtil {
         Calendar cal = Calendar.getInstance();
         int week = cal.get(Calendar.WEEK_OF_YEAR);
         return week;
+    }
+
+    public static String convertMillisToHoursMinutes(Long timeInMillis){
+        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
+        Date resultDate = new Date(timeInMillis);
+        return sdf.format(resultDate);
+    }
+
+    public static String convertMillisToHours(Long timeInMillis){
+        return String.format("%02d", TimeUnit.MILLISECONDS.toHours(timeInMillis));
+    }
+
+    public static String convertMillisToMinutes(Long timeInMillis){
+        return String.format("%02d", TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1));
     }
 
 }
