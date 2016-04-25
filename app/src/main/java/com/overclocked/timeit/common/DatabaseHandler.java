@@ -202,6 +202,26 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return items;
     }
 
+    public Long getWeeklyAverage(int week)
+    {
+        int count = 0;
+        Long totalDiffTime = 0L;
+        String selectQuery = "SELECT * FROM " + TABLE_SWIPE + " where " + SWIPE_WEEK_NUMBER + "=" + week;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(selectQuery, null);
+        if (c.moveToFirst()) {
+            do{
+                if(c.getLong(c.getColumnIndex(SWIPE_IN_TIME))!=0 && c.getLong(c.getColumnIndex(SWIPE_OUT_TIME))!=0){
+                    totalDiffTime = totalDiffTime + (c.getLong(c.getColumnIndex(SWIPE_OUT_TIME)) - c.getLong(c.getColumnIndex(SWIPE_IN_TIME)));
+                    count = count + 1;
+                }
+            } while (c.moveToNext());
+        }
+        c.close();
+        db.close();
+        return totalDiffTime/count;
+    }
+
     public void updateSwipeInTime(String swipeDate, Long timeInMillis) {
         String Query = "update swipe set intime =" + timeInMillis + " where swipedate='" + swipeDate + "'";
         SQLiteDatabase db = this.getWritableDatabase();

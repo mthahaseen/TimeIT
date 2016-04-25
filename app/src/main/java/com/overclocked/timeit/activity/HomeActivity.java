@@ -17,6 +17,7 @@ import com.overclocked.timeit.R;
 import com.overclocked.timeit.adapter.RecyclerViewSwipeDataAdapter;
 import com.overclocked.timeit.common.AppConstants;
 import com.overclocked.timeit.common.AppUtil;
+import com.overclocked.timeit.common.VerticalSpaceItemDecoration;
 import com.overclocked.timeit.model.SwipeData;
 
 import java.text.DateFormat;
@@ -32,6 +33,8 @@ public class HomeActivity extends AppCompatActivity {
 
     @Bind(R.id.txtToday) TextView txtToday;
     @Bind(R.id.lblSwipe) TextView lblSwipe;
+    @Bind(R.id.txtAvgHours) TextView txtAvgHours;
+    @Bind(R.id.txtAvgMinutes) TextView txtAvgMinutes;
     @Bind(R.id.recyclerViewSwipeData) RecyclerView recyclerViewSwipeData;
     @Bind(R.id.fabCheckInOut) FloatingActionButton fabCheckInOut;
     SharedPreferences preferences;
@@ -81,8 +84,10 @@ public class HomeActivity extends AppCompatActivity {
                 lblSwipe.setText(AppConstants.SWIPE_IN);
                 isCheckInDone = false;
             }
+            setWeeklyAverage();
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(HomeActivity.this);
             recyclerViewSwipeData.setLayoutManager(linearLayoutManager);
+            recyclerViewSwipeData.addItemDecoration(new VerticalSpaceItemDecoration(AppConstants.VERTICAL_ITEM_SPACE));
             recyclerViewSwipeDataAdapter = new RecyclerViewSwipeDataAdapter(HomeActivity.this, lstSwipe);
             recyclerViewSwipeData.setAdapter(recyclerViewSwipeDataAdapter);
             fabCheckInOut.setOnLongClickListener(new View.OnLongClickListener() {
@@ -115,9 +120,17 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    public void setWeeklyAverage(){
+        Long weeklyAverageMillis = AppController.getInstance().getDatabaseHandler().getWeeklyAverage(weekNumber);
+        txtAvgHours.setText(AppUtil.convertMillisToHours(weeklyAverageMillis));
+        txtAvgMinutes.setText(AppUtil.convertMillisToMinutes(weeklyAverageMillis));
+    }
+
+
     @Override
     protected void onResume() {
         super.onResume();
+        setWeeklyAverage();
         lstSwipe = AppController.getInstance().getDatabaseHandler().getSwipeData(weekNumber);
         recyclerViewSwipeDataAdapter.notifyDataSetChanged();
     }
