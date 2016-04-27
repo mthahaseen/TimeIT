@@ -35,6 +35,8 @@ public class HomeActivity extends AppCompatActivity {
     @Bind(R.id.lblSwipe) TextView lblSwipe;
     @Bind(R.id.txtAvgHours) TextView txtAvgHours;
     @Bind(R.id.txtAvgMinutes) TextView txtAvgMinutes;
+    @Bind(R.id.txtTargetHour) TextView txtTargetHour;
+    @Bind(R.id.txtTargetMinutes) TextView txtTargetMinutes;
     @Bind(R.id.recyclerViewSwipeData) RecyclerView recyclerViewSwipeData;
     @Bind(R.id.fabCheckInOut) FloatingActionButton fabCheckInOut;
     SharedPreferences preferences;
@@ -85,6 +87,7 @@ public class HomeActivity extends AppCompatActivity {
                 isCheckInDone = false;
             }
             setWeeklyAverage();
+            setDailyTarget();
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(HomeActivity.this);
             recyclerViewSwipeData.setLayoutManager(linearLayoutManager);
             recyclerViewSwipeData.addItemDecoration(new VerticalSpaceItemDecoration(AppConstants.VERTICAL_ITEM_SPACE));
@@ -126,11 +129,22 @@ public class HomeActivity extends AppCompatActivity {
         txtAvgMinutes.setText(AppUtil.convertMillisToMinutes(weeklyAverageMillis));
     }
 
+    public void setDailyTarget(){
+        Long dailyTargetMillis = AppController.getInstance().getDatabaseHandler().calculateTodayTarget(weekNumber);
+        if(dailyTargetMillis != 0L) {
+            txtTargetHour.setText(AppUtil.convertMillisToHours(dailyTargetMillis));
+            txtTargetMinutes.setText(AppUtil.convertMillisToMinutes(dailyTargetMillis));
+        }else{
+            txtTargetHour.setText(AppUtil.convertMillisToHours(preferences.getLong(AppConstants.PREF_AVG_SWIPE_MILLIS,0L)));
+            txtTargetMinutes.setText(AppUtil.convertMillisToMinutes(preferences.getLong(AppConstants.PREF_AVG_SWIPE_MILLIS,0L)));
+        }
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
         setWeeklyAverage();
+        setDailyTarget();
         lstSwipe = AppController.getInstance().getDatabaseHandler().getSwipeData(weekNumber);
         recyclerViewSwipeDataAdapter.notifyDataSetChanged();
     }

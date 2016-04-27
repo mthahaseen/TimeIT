@@ -1,13 +1,49 @@
 package com.overclocked.timeit.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by Thahaseen on 4/22/2016.
  */
-public class SwipeData {
+public class SwipeData implements Parcelable{
+
+    public SwipeData(){}
 
     String swipeDate;
     Long swipeInTime;
     Long swipeOutTime;
+
+    @Override
+    public int describeContents() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(swipeDate);
+        dest.writeLong(swipeInTime);
+        dest.writeLong(swipeOutTime);
+    }
+
+    private SwipeData(Parcel in) {
+        this.swipeDate = in.readString();
+        this.swipeInTime = in.readLong();
+        this.swipeOutTime = in.readLong();
+    }
+    public static final Parcelable.Creator<SwipeData> CREATOR = new Parcelable.Creator<SwipeData>() {
+
+        @Override
+        public SwipeData createFromParcel(Parcel source) {
+            return new SwipeData(source);
+        }
+
+        @Override
+        public SwipeData[] newArray(int size) {
+            return new SwipeData[size];
+        }
+    };
 
     public String getSwipeDate() {
         return swipeDate;

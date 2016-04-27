@@ -19,8 +19,7 @@
         android:id="@+id/txtSwipeStatus"
         android:layout_width="15dp"
         android:layout_height="15dp"
-        android:layout_alignParentRight="true"
-        android:background="@android:color/holo_green_dark"/>
+        android:layout_alignParentRight="true"/>
     <LinearLayout
         android:layout_below="@+id/txtSwipeDate"
         android:layout_marginTop="10dp"

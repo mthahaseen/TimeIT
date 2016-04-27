@@ -2,9 +2,11 @@ package com.overclocked.timeit.common;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.preference.PreferenceManager;
 
 import com.overclocked.timeit.model.Days;
 import com.overclocked.timeit.model.SwipeData;
@@ -18,6 +20,9 @@ import java.util.List;
  * Created by Thahaseen on 4/13/2016.
  */
 public class DatabaseHandler extends SQLiteOpenHelper {
+
+    Context context;
+    SharedPreferences preferences;
 
     private static final int DATABASE_VERSION = 1;
 
@@ -40,6 +45,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
+        preferences = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
     @Override
@@ -202,8 +209,22 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return items;
     }
 
-    public Long getWeeklyAverage(int week)
-    {
+    public SwipeData getOneSwipeData(String swipeDate){
+        SwipeData swipe =  new SwipeData();
+        String selectQuery = "SELECT * FROM " + TABLE_SWIPE + " where " + SWIPE_DATE + "='" + swipeDate + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(selectQuery, null);
+        if (c.moveToFirst()) {
+                swipe.setSwipeDate(c.getString(c.getColumnIndex(SWIPE_DATE)));
+                swipe.setSwipeInTime(c.getLong(c.getColumnIndex(SWIPE_IN_TIME)));
+                swipe.setSwipeOutTime(c.getLong(c.getColumnIndex(SWIPE_OUT_TIME)));
+        }
+        c.close();
+        db.close();
+        return swipe;
+    }
+
+    public Long getWeeklyAverage(int week) {
         int count = 0;
         Long totalDiffTime = 0L;
         String selectQuery = "SELECT * FROM " + TABLE_SWIPE + " where " + SWIPE_WEEK_NUMBER + "=" + week;
@@ -219,7 +240,38 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
         c.close();
         db.close();
-        return totalDiffTime/count;
+        if(count == 0){
+            return 0L;
+        }else{
+            return totalDiffTime/count;
+        }
+    }
+
+    public Long calculateTodayTarget(int week) {
+        int count = 0;
+        Long totalDiffTime = 0L;
+        Long target = 0L;
+        String selectQuery = "SELECT * FROM " + TABLE_SWIPE + " where " + SWIPE_WEEK_NUMBER + "=" + week;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(selectQuery, null);
+        if (c.moveToFirst()) {
+            do{
+                if(c.getLong(c.getColumnIndex(SWIPE_IN_TIME))!=0 && c.getLong(c.getColumnIndex(SWIPE_OUT_TIME))!=0){
+                    totalDiffTime = totalDiffTime + (c.getLong(c.getColumnIndex(SWIPE_OUT_TIME)) - c.getLong(c.getColumnIndex(SWIPE_IN_TIME)));
+                    count = count + 1;
+                }
+            } while (c.moveToNext());
+        }
+        if(count == 0){
+            return 0L;
+        }else{
+            int temp = c.getCount() - count;
+            Long configAverage = preferences.getLong(AppConstants.PREF_AVG_SWIPE_MILLIS,0L);
+            target = ((configAverage * c.getCount()) - totalDiffTime) / temp;
+        }
+        c.close();
+        db.close();
+        return target;
     }
 
     public void updateSwipeInTime(String swipeDate, Long timeInMillis) {

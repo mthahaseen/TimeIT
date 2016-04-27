@@ -57,6 +57,18 @@ public class AppUtil {
         return sdf.format(resultDate);
     }
 
+    public static String convertMillisToHours1(Long timeInMillis){
+        SimpleDateFormat sdf = new SimpleDateFormat("hh");
+        Date resultDate = new Date(timeInMillis);
+        return sdf.format(resultDate);
+    }
+
+    public static String convertMillisToMinutes1(Long timeInMillis){
+        SimpleDateFormat sdf = new SimpleDateFormat("mm");
+        Date resultDate = new Date(timeInMillis);
+        return sdf.format(resultDate);
+    }
+
     public static String convertMillisToHours(Long timeInMillis){
         return String.format("%02d", TimeUnit.MILLISECONDS.toHours(timeInMillis));
     }

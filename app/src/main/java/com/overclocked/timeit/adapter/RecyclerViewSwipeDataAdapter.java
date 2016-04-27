@@ -1,6 +1,7 @@
 package com.overclocked.timeit.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.overclocked.timeit.R;
+import com.overclocked.timeit.activity.HomeActivity;
+import com.overclocked.timeit.activity.TimeActivity;
 import com.overclocked.timeit.common.AppUtil;
 import com.overclocked.timeit.model.SwipeData;
 
@@ -58,15 +61,18 @@ public class RecyclerViewSwipeDataAdapter extends RecyclerView.Adapter<RecyclerV
         }
         if(item.getSwipeInTime() == 0 && item.getSwipeOutTime() == 0){
             viewHolder.txtSwipeDifference.setText("00 h 00 m");
+            viewHolder.txtSwipeStatus.setBackgroundColor(mContext.getResources().getColor(android.R.color.darker_gray));
         }else if(item.getSwipeInTime() != 0 && item.getSwipeOutTime() == 0){
             Calendar calendar = Calendar.getInstance();
             Long diff = calendar.getTimeInMillis() - item.getSwipeInTime();
             viewHolder.txtSwipeDifference.setText(AppUtil.convertMillisToHours(diff) + " h " +
             AppUtil.convertMillisToMinutes(diff) + " m");
+            viewHolder.txtSwipeStatus.setBackgroundColor(mContext.getResources().getColor(android.R.color.holo_orange_light));
         }else if(item.getSwipeInTime() != 0 && item.getSwipeOutTime() != 0){
             Long diff = item.getSwipeOutTime() - item.getSwipeInTime();
             viewHolder.txtSwipeDifference.setText(AppUtil.convertMillisToHours(diff) + " h " +
                     AppUtil.convertMillisToMinutes(diff) + " m");
+            viewHolder.txtSwipeStatus.setBackgroundColor(mContext.getResources().getColor(android.R.color.holo_green_dark));
         }
     }
 
@@ -75,16 +81,26 @@ public class RecyclerViewSwipeDataAdapter extends RecyclerView.Adapter<RecyclerV
         return lstSwipeData.size();
     }
 
-    public class SwipeViewHolder extends RecyclerView.ViewHolder{
+    public class SwipeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         @Bind(R.id.txtSwipeDate) protected TextView txtSwipeDate;
         @Bind(R.id.txtSwipeInTime) protected  TextView txtSwipeInTime;
         @Bind(R.id.txtSwipeOutTime) protected  TextView txtSwipeOutTime;
         @Bind(R.id.txtSwipeDifference) protected TextView txtSwipeDifference;
+        @Bind(R.id.txtSwipeStatus) protected TextView txtSwipeStatus;
 
         public SwipeViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
+            view.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            Intent i = new Intent(mContext, TimeActivity.class);
+            i.putExtra("swipeData",lstSwipeData.get(getAdapterPosition()));
+            mContext.startActivity(i);
+            ((HomeActivity) (mContext)).finish();
         }
     }
 
