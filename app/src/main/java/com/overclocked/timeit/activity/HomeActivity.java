@@ -3,11 +3,13 @@ package com.overclocked.timeit.activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,6 +34,7 @@ import butterknife.ButterKnife;
 public class HomeActivity extends AppCompatActivity {
 
     @Bind(R.id.txtToday) TextView txtToday;
+    @Bind(R.id.txtCountDown) TextView txtCountDown;
     @Bind(R.id.lblSwipe) TextView lblSwipe;
     @Bind(R.id.txtAvgHours) TextView txtAvgHours;
     @Bind(R.id.txtAvgMinutes) TextView txtAvgMinutes;
@@ -45,6 +48,7 @@ public class HomeActivity extends AppCompatActivity {
     int weekNumber = AppUtil.getWeekNumberOfTodayDate();
     boolean isCheckInDone = false;
     boolean isCheckOutDone = false;
+    CountDownTimer cTimer = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,6 +92,7 @@ public class HomeActivity extends AppCompatActivity {
             }
             setWeeklyAverage();
             setDailyTarget();
+            startCountDown(AppUtil.getDateAsText(calendar));
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(HomeActivity.this);
             recyclerViewSwipeData.setLayoutManager(linearLayoutManager);
             recyclerViewSwipeData.addItemDecoration(new VerticalSpaceItemDecoration(AppConstants.VERTICAL_ITEM_SPACE));
@@ -147,5 +152,38 @@ public class HomeActivity extends AppCompatActivity {
         setDailyTarget();
         lstSwipe = AppController.getInstance().getDatabaseHandler().getSwipeData(weekNumber);
         recyclerViewSwipeDataAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(cTimer!=null)
+            cTimer.cancel();
+    }
+
+    public void startCountDown(String swipeDate){
+        Long count = 0L;
+        Long dailyTargetMillis = AppController.getInstance().getDatabaseHandler().calculateTodayTarget(weekNumber);
+        SwipeData item = AppController.getInstance().getDatabaseHandler().getOneSwipeData(swipeDate);
+        if(item.getSwipeInTime() != 0 && item.getSwipeOutTime() == 0){
+            Calendar calendar = Calendar.getInstance();
+            Long diff = calendar.getTimeInMillis() - item.getSwipeInTime();
+            Log.i("current time:",""+calendar.getTimeInMillis());
+            Log.i("swipe in time:",""+item.getSwipeInTime());
+            Log.i("daily target",""+dailyTargetMillis);
+            count = dailyTargetMillis - diff;
+        }
+        if(count != 0L) {
+            cTimer = new CountDownTimer(count, 1000) {
+                public void onTick(long millisUntilFinished) {
+                    txtCountDown.setText(AppUtil.convertMillisToHoursMinutesSeconds(millisUntilFinished));
+                }
+
+                public void onFinish() {
+
+                }
+            };
+            cTimer.start();
+        }
     }
 }

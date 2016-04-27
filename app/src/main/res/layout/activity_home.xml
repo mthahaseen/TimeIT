@@ -160,22 +160,39 @@
                 android:text="Today Target"/>
         </LinearLayout>
     </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/rlToday"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#55000000"
+        android:layout_below="@+id/rlTopView">
       <TextView
           android:id="@+id/txtToday"
-          android:layout_below="@+id/rlTopView"
-          android:layout_width="match_parent"
+          android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:fontFamily="sans-serif-light"
           android:textColor="@android:color/white"
-          android:padding="5dp"
-          android:background="#55000000"/>
+          android:paddingLeft="10dp"
+          android:paddingBottom="5dp"
+          android:paddingTop="5dp"/>
+        <TextView
+            android:id="@+id/txtCountDown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-light"
+            android:textColor="@android:color/white"
+            android:layout_alignParentRight="true"
+            android:paddingRight="10dp"
+            android:paddingBottom="5dp"
+            android:paddingTop="5dp"/>
+    </RelativeLayout>
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerViewSwipeData"
         android:paddingTop="5dp"
         android:paddingRight="5dp"
         android:paddingLeft="5dp"
         android:clipToPadding="false"
-        android:layout_below="@+id/txtToday"
+        android:layout_below="@+id/rlToday"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     </android.support.v7.widget.RecyclerView>
