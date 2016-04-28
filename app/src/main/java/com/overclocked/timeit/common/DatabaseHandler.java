@@ -189,8 +189,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
-    public List<SwipeData> getSwipeData(int week)
-    {
+    public List<SwipeData> getSwipeData(int week) {
         List<SwipeData> items = new ArrayList<>();
         String selectQuery = "SELECT * FROM " + TABLE_SWIPE + " where " + SWIPE_WEEK_NUMBER + "=" + week;
         SQLiteDatabase db = this.getReadableDatabase();
@@ -207,6 +206,24 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         c.close();
         db.close();
         return items;
+    }
+
+    public int getWhichDay(int week, String swipeDate) {
+        int which = 0;
+        String selectQuery = "SELECT * FROM " + TABLE_SWIPE + " where " + SWIPE_WEEK_NUMBER + "=" + week;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(selectQuery, null);
+        if (c.moveToFirst()) {
+            do{
+                which = which + 1;
+                if(c.getString(c.getColumnIndex(SWIPE_DATE)).equals(swipeDate)){
+                   break;
+                }
+            } while (c.moveToNext());
+        }
+        c.close();
+        db.close();
+        return which;
     }
 
     public SwipeData getOneSwipeData(String swipeDate){
