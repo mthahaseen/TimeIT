@@ -13,6 +13,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,6 +46,7 @@ public class HomeActivity extends AppCompatActivity {
     @Bind(R.id.txtTargetMinutes) TextView txtTargetMinutes;
     @Bind(R.id.recyclerViewSwipeData) RecyclerView recyclerViewSwipeData;
     @Bind(R.id.fabCheckInOut) FloatingActionButton fabCheckInOut;
+    @Bind(R.id.rlWeekend) RelativeLayout rlWeekend;
     SharedPreferences preferences;
     List<SwipeData> lstSwipe = new ArrayList<>();
     RecyclerViewSwipeDataAdapter recyclerViewSwipeDataAdapter;
@@ -65,56 +67,72 @@ public class HomeActivity extends AppCompatActivity {
             ButterKnife.bind(this);
             final Calendar calendar = Calendar.getInstance();
             txtToday.setText(AppUtil.getDateAsText(calendar));
-            if (calendar.get(Calendar.DAY_OF_WEEK) < preferences.getInt(AppConstants.PREF_START_DAY, 1)) {
-                weekNumber = weekNumber - 1;
-                if (!AppController.getInstance().getDatabaseHandler().isWeekEntryAvailable(weekNumber)) {
-                    AppController.getInstance().getDatabaseHandler().initializeWeekData(weekNumber, preferences.getInt(AppConstants.PREF_START_DAY, 1), preferences.getInt(AppConstants.PREF_END_DAY, 7));
-                }
-                lstSwipe = AppController.getInstance().getDatabaseHandler().getSwipeData(weekNumber);
-            } else {
-                if (!AppController.getInstance().getDatabaseHandler().isWeekEntryAvailable(weekNumber)) {
-                    AppController.getInstance().getDatabaseHandler().initializeWeekData(weekNumber, preferences.getInt(AppConstants.PREF_START_DAY, 1), preferences.getInt(AppConstants.PREF_END_DAY, 7));
-                }
-                lstSwipe = AppController.getInstance().getDatabaseHandler().getSwipeData(weekNumber);
-            }
-            if(AppController.getInstance().getDatabaseHandler().isTodayCheckInDone()){
-                if(AppController.getInstance().getDatabaseHandler().isTodayCheckOutDone()){
-                    fabCheckInOut.setImageResource(R.drawable.ic_done_all_white_48dp);
-                    lblSwipe.setText(":-) :-)");
-                    isCheckOutDone = true;
-                }else {
-                    fabCheckInOut.setImageResource(R.drawable.ic_arrow_back_white_48dp);
-                    lblSwipe.setText(AppConstants.SWIPE_OUT);
-                    isCheckInDone = true;
-                }
-            }else{
-                fabCheckInOut.setImageResource(R.drawable.ic_arrow_forward_white_48dp);
-                lblSwipe.setText(AppConstants.SWIPE_IN);
-                isCheckInDone = false;
-            }
-            setWeeklyAverage();
-            setDailyTarget();
-            startCountDown(AppUtil.getDateAsText(calendar));
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(HomeActivity.this);
-            recyclerViewSwipeData.setLayoutManager(linearLayoutManager);
-            recyclerViewSwipeData.addItemDecoration(new VerticalSpaceItemDecoration(AppConstants.VERTICAL_ITEM_SPACE));
-            recyclerViewSwipeDataAdapter = new RecyclerViewSwipeDataAdapter(HomeActivity.this, lstSwipe);
-            recyclerViewSwipeData.setAdapter(recyclerViewSwipeDataAdapter);
-            fabCheckInOut.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    checkInOut();
-                    return true;
-                }
-            });
-            fabCheckInOut.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (!isCheckOutDone) {
-                        showAlertDialog();
+            Log.i("day of week",calendar.get(Calendar.DAY_OF_WEEK)+" " +preferences.getInt(AppConstants.PREF_START_DAY, 1)+ " " +preferences.getInt(AppConstants.PREF_END_DAY, 1));
+            if(AppUtil.isTodayOutOfSelectedDays(calendar.get(Calendar.DAY_OF_WEEK),preferences.getInt(AppConstants.PREF_START_DAY, 1), preferences.getInt(AppConstants.PREF_END_DAY, 7))){
+                fabCheckInOut.setImageResource(R.drawable.ic_done_all_white_48dp);
+                lblSwipe.setText("<3 <3");
+                Long weeklyAverageMillis = preferences.getLong(AppConstants.PREF_AVG_SWIPE_MILLIS,0L);
+                txtAvgHours.setText(AppUtil.convertMillisToHours(weeklyAverageMillis));
+                txtAvgMinutes.setText(AppUtil.convertMillisToMinutes(weeklyAverageMillis));
+                recyclerViewSwipeData.setVisibility(View.GONE);
+                rlWeekend.setVisibility(View.VISIBLE);
+                txtTargetHour.setText("<3");
+                txtTargetMinutes.setText("<3");
+                txtTarget.setText("Happy Weekend");
+            }else {
+                rlWeekend.setVisibility(View.GONE);
+                recyclerViewSwipeData.setVisibility(View.VISIBLE);
+                if (calendar.get(Calendar.DAY_OF_WEEK) < preferences.getInt(AppConstants.PREF_START_DAY, 1)) {
+                    weekNumber = weekNumber - 1;
+                    if (!AppController.getInstance().getDatabaseHandler().isWeekEntryAvailable(weekNumber)) {
+                        AppController.getInstance().getDatabaseHandler().initializeWeekData(weekNumber, preferences.getInt(AppConstants.PREF_START_DAY, 1), preferences.getInt(AppConstants.PREF_END_DAY, 7));
                     }
+                    lstSwipe = AppController.getInstance().getDatabaseHandler().getSwipeData(weekNumber);
+                } else {
+                    if (!AppController.getInstance().getDatabaseHandler().isWeekEntryAvailable(weekNumber)) {
+                        AppController.getInstance().getDatabaseHandler().initializeWeekData(weekNumber, preferences.getInt(AppConstants.PREF_START_DAY, 1), preferences.getInt(AppConstants.PREF_END_DAY, 7));
+                    }
+                    lstSwipe = AppController.getInstance().getDatabaseHandler().getSwipeData(weekNumber);
                 }
-            });
+                if (AppController.getInstance().getDatabaseHandler().isTodayCheckInDone()) {
+                    if (AppController.getInstance().getDatabaseHandler().isTodayCheckOutDone()) {
+                        fabCheckInOut.setImageResource(R.drawable.ic_done_all_white_48dp);
+                        lblSwipe.setText(":-) :-)");
+                        isCheckOutDone = true;
+                    } else {
+                        fabCheckInOut.setImageResource(R.drawable.ic_arrow_back_white_48dp);
+                        lblSwipe.setText(AppConstants.SWIPE_OUT);
+                        isCheckInDone = true;
+                    }
+                } else {
+                    fabCheckInOut.setImageResource(R.drawable.ic_arrow_forward_white_48dp);
+                    lblSwipe.setText(AppConstants.SWIPE_IN);
+                    isCheckInDone = false;
+                }
+                setWeeklyAverage();
+                setDailyTarget();
+                startCountDown(AppUtil.getDateAsText(calendar));
+                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(HomeActivity.this);
+                recyclerViewSwipeData.setLayoutManager(linearLayoutManager);
+                recyclerViewSwipeData.addItemDecoration(new VerticalSpaceItemDecoration(AppConstants.VERTICAL_ITEM_SPACE));
+                recyclerViewSwipeDataAdapter = new RecyclerViewSwipeDataAdapter(HomeActivity.this, lstSwipe);
+                recyclerViewSwipeData.setAdapter(recyclerViewSwipeDataAdapter);
+                fabCheckInOut.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        checkInOut();
+                        return true;
+                    }
+                });
+                fabCheckInOut.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (!isCheckOutDone) {
+                            showAlertDialog();
+                        }
+                    }
+                });
+            }
         }
     }
 
@@ -145,6 +163,10 @@ public class HomeActivity extends AppCompatActivity {
                 txtTargetHour.setText("<3");
                 txtTargetMinutes.setText("<3");
                 txtTarget.setText("Happy Weekend");
+            }else if(AppController.getInstance().getDatabaseHandler().getWhichDay(weekNumber,AppUtil.getDateAsText(calendar)) == 0){
+                txtTargetHour.setText("<3");
+                txtTargetMinutes.setText("<3");
+                txtTarget.setText("Happy Weekend");
             }
         }
     }
@@ -152,10 +174,13 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        setWeeklyAverage();
-        setDailyTarget();
-        lstSwipe = AppController.getInstance().getDatabaseHandler().getSwipeData(weekNumber);
-        recyclerViewSwipeDataAdapter.notifyDataSetChanged();
+        Calendar calendar = Calendar.getInstance();
+        if(!AppUtil.isTodayOutOfSelectedDays(calendar.get(Calendar.DAY_OF_WEEK),preferences.getInt(AppConstants.PREF_START_DAY, 1), preferences.getInt(AppConstants.PREF_END_DAY, 7))){
+            setWeeklyAverage();
+            setDailyTarget();
+            lstSwipe = AppController.getInstance().getDatabaseHandler().getSwipeData(weekNumber);
+            recyclerViewSwipeDataAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override

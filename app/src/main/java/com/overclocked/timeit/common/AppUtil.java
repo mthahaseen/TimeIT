@@ -71,4 +71,22 @@ public class AppUtil {
         return String.format("%02d", TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1));
     }
 
+    public static boolean isTodayOutOfSelectedDays(int today, int startDay, int endDay){
+        boolean result = false;
+        if(startDay < endDay){
+            if(today >= startDay && today<=endDay){
+                result = false;
+            }else{
+                result = true;
+            }
+        }else if(startDay > endDay){
+            if(today >= endDay && today<=startDay){
+                result = false;
+            }else{
+                result = true;
+            }
+        }
+        return result;
+    }
+
 }
