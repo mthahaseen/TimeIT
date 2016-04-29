@@ -140,6 +140,11 @@ public class HomeActivity extends AppCompatActivity {
             if(AppController.getInstance().getDatabaseHandler().getWhichDay(weekNumber,AppUtil.getDateAsText(calendar))
                     < preferences.getInt(AppConstants.PREF_DAY_DIFFERENCE,0)){
                 txtTarget.setText("Tomorrow's Target");
+            }else if(AppController.getInstance().getDatabaseHandler().getWhichDay(weekNumber,AppUtil.getDateAsText(calendar))
+                    == preferences.getInt(AppConstants.PREF_DAY_DIFFERENCE,0)){
+                txtTargetHour.setText("<3");
+                txtTargetMinutes.setText("<3");
+                txtTarget.setText("Happy Weekend");
             }
         }
     }
@@ -176,7 +181,7 @@ public class HomeActivity extends AppCompatActivity {
             if (count != 0L) {
                 cTimer = new CountDownTimer(count, 1000) {
                     public void onTick(long millisUntilFinished) {
-                        txtCountDown.setText(AppUtil.convertMillisToHoursMinutesSeconds(millisUntilFinished));
+                        txtCountDown.setText("Leave in "+AppUtil.convertMillisToHoursMinutesSeconds(millisUntilFinished));
                     }
 
                     public void onFinish() {

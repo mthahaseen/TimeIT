@@ -283,8 +283,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             return 0L;
         }else{
             int temp = c.getCount() - count;
-            Long configAverage = preferences.getLong(AppConstants.PREF_AVG_SWIPE_MILLIS,0L);
-            target = ((configAverage * c.getCount()) - totalDiffTime) / temp;
+            if(temp == 0) {
+                target = getWeeklyAverage(week);
+            }else {
+                Long configAverage = preferences.getLong(AppConstants.PREF_AVG_SWIPE_MILLIS, 0L);
+                target = ((configAverage * c.getCount()) - totalDiffTime) / temp;
+            }
         }
         c.close();
         db.close();
