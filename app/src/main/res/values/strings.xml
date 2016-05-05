@@ -6,4 +6,7 @@
     <string name="title_activity_fullscreen">FullscreenActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="rate_now">RATE NOW</string>
+    <string name="no_thanks">NO, THANKS</string>
+    <string name="rate_text">We\'re glad you are enjoying using Time It App! Would you mind taking a moment to rate it? It won\'t take more than a minute. Thanks for your support!</string>
 </resources>

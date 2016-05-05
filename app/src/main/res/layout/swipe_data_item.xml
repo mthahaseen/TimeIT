@@ -76,6 +76,7 @@
             android:orientation="horizontal"
             android:layout_gravity="right">
             <ImageView
+                android:id="@+id/imgSwipeType"
                 android:layout_toLeftOf="@+id/txtSwipeDifference"
                 android:layout_width="30dp"
                 android:layout_height="30dp"

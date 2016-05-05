@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.overclocked.timeit.model.Days;
 import com.overclocked.timeit.model.SwipeData;
@@ -42,6 +43,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String SWIPE_DATE = "swipedate";
     private static final String SWIPE_IN_TIME= "intime";
     private static final String SWIPE_OUT_TIME= "outtime";
+    private static final String SWIPE_HOLIDAY= "holiday";
 
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -62,7 +64,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 + SWIPE_DATE + " TEXT,"
                 + SWIPE_WEEK_NUMBER + " INTEGER,"
                 + SWIPE_IN_TIME + " INTEGER,"
-                + SWIPE_OUT_TIME + " INTEGER)";
+                + SWIPE_OUT_TIME + " INTEGER,"
+                + SWIPE_HOLIDAY + " INTEGER)";
 
         db.execSQL(CREATE_SWIPE_TABLE);
 
@@ -129,6 +132,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         contentValues.put(SWIPE_WEEK_NUMBER, week);
         contentValues.put(SWIPE_IN_TIME, startMillis);
         contentValues.put(SWIPE_OUT_TIME, endMillis);
+        contentValues.put(SWIPE_HOLIDAY, 0);
         db.insert(TABLE_SWIPE, null, contentValues);
         db.close();
     }
@@ -142,6 +146,23 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }else{
             return false;
         }
+    }
+
+    public boolean isTodayHoliday(){
+        boolean result = false;
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat(AppConstants.SWIPE_DATE_FORMAT);
+        String selectQuery = "SELECT * FROM " + TABLE_SWIPE + " where " + SWIPE_DATE + "='" + sdf.format(calendar.getTime()) + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(selectQuery, null);
+        if (c.moveToFirst()) {
+            if(c.getInt(c.getColumnIndex(SWIPE_HOLIDAY)) == 0){
+                result = false;
+            }else{
+                result = true;
+            }
+        }
+        return result;
     }
 
     public boolean isTodayCheckInDone(){
@@ -178,10 +199,27 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return result;
     }
 
-    public void initializeWeekData(int weekNumber, int dayStart, int numberOfDays){
+    public boolean isSwipeDateHoliday(String swipeDate){
+        boolean result = false;
+        String selectQuery = "SELECT * FROM " + TABLE_SWIPE + " where " + SWIPE_DATE + "='" + swipeDate + "'";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(selectQuery, null);
+        if (c.moveToFirst()) {
+            if(c.getInt(c.getColumnIndex(SWIPE_HOLIDAY)) == 1){
+                result = true;
+            }else{
+                result = false;
+            }
+        }
+        return result;
+    }
+
+    public void initializeWeekData(int weekNumber, int year, int dayStart, int numberOfDays){
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat(AppConstants.SWIPE_DATE_FORMAT);
+        calendar.clear();
         calendar.set(Calendar.WEEK_OF_YEAR, weekNumber);
+        calendar.set(Calendar.YEAR, year);
         calendar.set(Calendar.DAY_OF_WEEK, dayStart);
         for(int i = 0 ; i < numberOfDays ; i++){
             if(i != 0){ calendar.add(Calendar.DATE, 1);}
@@ -200,6 +238,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 swipe.setSwipeDate(c.getString(c.getColumnIndex(SWIPE_DATE)));
                 swipe.setSwipeInTime(c.getLong(c.getColumnIndex(SWIPE_IN_TIME)));
                 swipe.setSwipeOutTime(c.getLong(c.getColumnIndex(SWIPE_OUT_TIME)));
+                swipe.setHoliday(c.getInt(c.getColumnIndex(SWIPE_HOLIDAY)));
                 items.add(swipe);
             } while (c.moveToNext());
         }
@@ -235,6 +274,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 swipe.setSwipeDate(c.getString(c.getColumnIndex(SWIPE_DATE)));
                 swipe.setSwipeInTime(c.getLong(c.getColumnIndex(SWIPE_IN_TIME)));
                 swipe.setSwipeOutTime(c.getLong(c.getColumnIndex(SWIPE_OUT_TIME)));
+                swipe.setHoliday(c.getInt(c.getColumnIndex(SWIPE_HOLIDAY)));
         }
         c.close();
         db.close();
@@ -249,9 +289,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Cursor c = db.rawQuery(selectQuery, null);
         if (c.moveToFirst()) {
             do{
-                if(c.getLong(c.getColumnIndex(SWIPE_IN_TIME))!=0 && c.getLong(c.getColumnIndex(SWIPE_OUT_TIME))!=0){
-                    totalDiffTime = totalDiffTime + (c.getLong(c.getColumnIndex(SWIPE_OUT_TIME)) - c.getLong(c.getColumnIndex(SWIPE_IN_TIME)));
-                    count = count + 1;
+                if(c.getInt(c.getColumnIndex(SWIPE_HOLIDAY))!=1) {
+                    if (c.getLong(c.getColumnIndex(SWIPE_IN_TIME)) != 0 && c.getLong(c.getColumnIndex(SWIPE_OUT_TIME)) != 0) {
+                        totalDiffTime = totalDiffTime + (c.getLong(c.getColumnIndex(SWIPE_OUT_TIME)) - c.getLong(c.getColumnIndex(SWIPE_IN_TIME)));
+                        count = count + 1;
+                    }
                 }
             } while (c.moveToNext());
         }
@@ -273,9 +315,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Cursor c = db.rawQuery(selectQuery, null);
         if (c.moveToFirst()) {
             do{
-                if(c.getLong(c.getColumnIndex(SWIPE_IN_TIME))!=0 && c.getLong(c.getColumnIndex(SWIPE_OUT_TIME))!=0){
-                    totalDiffTime = totalDiffTime + (c.getLong(c.getColumnIndex(SWIPE_OUT_TIME)) - c.getLong(c.getColumnIndex(SWIPE_IN_TIME)));
-                    count = count + 1;
+                if(c.getInt(c.getColumnIndex(SWIPE_HOLIDAY))!=1) {
+                    if (c.getLong(c.getColumnIndex(SWIPE_IN_TIME)) != 0 && c.getLong(c.getColumnIndex(SWIPE_OUT_TIME)) != 0) {
+                        totalDiffTime = totalDiffTime + (c.getLong(c.getColumnIndex(SWIPE_OUT_TIME)) - c.getLong(c.getColumnIndex(SWIPE_IN_TIME)));
+                        count = count + 1;
+                    }
                 }
             } while (c.moveToNext());
         }
@@ -304,6 +348,20 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public void updateSwipeOutTime(String swipeDate, Long timeInMillis) {
         String Query = "update swipe set outtime =" + timeInMillis + " where swipedate='" + swipeDate + "'";
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(Query);
+        db.close();
+    }
+
+    public void updateSwipeDateAsHoliday(String swipeDate) {
+        String Query = "update swipe set holiday = 1,intime = 0,outtime = 0 where swipedate='" + swipeDate + "'";
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(Query);
+        db.close();
+    }
+
+    public void updateSwipeDateAsWorkDay(String swipeDate) {
+        String Query = "update swipe set holiday = 0 where swipedate='" + swipeDate + "'";
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL(Query);
         db.close();

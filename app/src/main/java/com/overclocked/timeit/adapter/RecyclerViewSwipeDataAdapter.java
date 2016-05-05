@@ -1,16 +1,23 @@
 package com.overclocked.timeit.adapter;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.ScaleAnimation;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.overclocked.timeit.AppController;
 import com.overclocked.timeit.R;
 import com.overclocked.timeit.activity.HomeActivity;
 import com.overclocked.timeit.activity.TimeActivity;
@@ -31,11 +38,25 @@ public class RecyclerViewSwipeDataAdapter extends RecyclerView.Adapter<RecyclerV
     private List<SwipeData> lstSwipeData;
     private Context mContext;
     private SharedPreferences preferences;
+    private OnLongListener onLongListener;
+    private final static int FADE_DURATION = 500; // in milliseconds
 
     public RecyclerViewSwipeDataAdapter(Context context, List<SwipeData> itemList) {
         this.lstSwipeData = itemList;
         this.mContext = context;
         this.preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+    }
+
+    private void setScaleAnimation(View view) {
+        ScaleAnimation anim = new ScaleAnimation(0.0f, 1.0f, 0.0f, 1.0f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        anim.setDuration(FADE_DURATION);
+        view.startAnimation(anim);
+    }
+
+    private void setFadeAnimation(View view) {
+        AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
+        anim.setDuration(FADE_DURATION);
+        view.startAnimation(anim);
     }
 
     @Override
@@ -59,21 +80,32 @@ public class RecyclerViewSwipeDataAdapter extends RecyclerView.Adapter<RecyclerV
         }else{
             viewHolder.txtSwipeOutTime.setText(AppUtil.convertMillisToHoursMinutes(item.getSwipeOutTime()));
         }
-        if(item.getSwipeInTime() == 0 && item.getSwipeOutTime() == 0){
-            viewHolder.txtSwipeDifference.setText("00 h 00 m");
-            viewHolder.txtSwipeStatus.setBackgroundColor(mContext.getResources().getColor(android.R.color.darker_gray));
-        }else if(item.getSwipeInTime() != 0 && item.getSwipeOutTime() == 0){
-            Calendar calendar = Calendar.getInstance();
-            Long diff = calendar.getTimeInMillis() - item.getSwipeInTime();
-            viewHolder.txtSwipeDifference.setText(AppUtil.convertMillisToHours(diff) + " h " +
-            AppUtil.convertMillisToMinutes(diff) + " m");
-            viewHolder.txtSwipeStatus.setBackgroundColor(mContext.getResources().getColor(android.R.color.holo_orange_light));
-        }else if(item.getSwipeInTime() != 0 && item.getSwipeOutTime() != 0){
-            Long diff = item.getSwipeOutTime() - item.getSwipeInTime();
-            viewHolder.txtSwipeDifference.setText(AppUtil.convertMillisToHours(diff) + " h " +
-                    AppUtil.convertMillisToMinutes(diff) + " m");
-            viewHolder.txtSwipeStatus.setBackgroundColor(mContext.getResources().getColor(android.R.color.holo_green_dark));
+        if(item.getHoliday() == 0) {
+            if (item.getSwipeInTime() == 0 && item.getSwipeOutTime() == 0) {
+                viewHolder.txtSwipeDifference.setText("00 h 00 m");
+                viewHolder.txtSwipeStatus.setBackgroundColor(mContext.getResources().getColor(android.R.color.darker_gray));
+            } else if (item.getSwipeInTime() != 0 && item.getSwipeOutTime() == 0) {
+                Calendar calendar = Calendar.getInstance();
+                Long diff = calendar.getTimeInMillis() - item.getSwipeInTime();
+                viewHolder.txtSwipeDifference.setText(AppUtil.convertMillisToHours(diff) + " h " +
+                        AppUtil.convertMillisToMinutes(diff) + " m");
+                viewHolder.txtSwipeStatus.setBackgroundColor(mContext.getResources().getColor(android.R.color.holo_orange_light));
+            } else if (item.getSwipeInTime() != 0 && item.getSwipeOutTime() != 0) {
+                Long diff = item.getSwipeOutTime() - item.getSwipeInTime();
+                viewHolder.txtSwipeDifference.setText(AppUtil.convertMillisToHours(diff) + " h " +
+                        AppUtil.convertMillisToMinutes(diff) + " m");
+                viewHolder.txtSwipeStatus.setBackgroundColor(mContext.getResources().getColor(android.R.color.holo_green_dark));
+            }
+            viewHolder.imgSwipeType.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_access_time_white_48dp));
+        }else{
+            viewHolder.txtSwipeDifference.setText("HOLIDAY!!");
+            viewHolder.imgSwipeType.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_weekend_white_48dp));
         }
+        setScaleAnimation(viewHolder.itemView);
+    }
+
+    public void setOnLongListener(OnLongListener onLongListener) {
+        this.onLongListener = onLongListener;
     }
 
     @Override
@@ -81,27 +113,67 @@ public class RecyclerViewSwipeDataAdapter extends RecyclerView.Adapter<RecyclerV
         return lstSwipeData.size();
     }
 
-    public class SwipeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public class SwipeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener{
 
         @Bind(R.id.txtSwipeDate) protected TextView txtSwipeDate;
         @Bind(R.id.txtSwipeInTime) protected  TextView txtSwipeInTime;
         @Bind(R.id.txtSwipeOutTime) protected  TextView txtSwipeOutTime;
         @Bind(R.id.txtSwipeDifference) protected TextView txtSwipeDifference;
         @Bind(R.id.txtSwipeStatus) protected TextView txtSwipeStatus;
+        @Bind(R.id.imgSwipeType) protected ImageView imgSwipeType;
 
         public SwipeViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
             view.setOnClickListener(this);
+            view.setOnLongClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
-            Intent i = new Intent(mContext, TimeActivity.class);
-            i.putExtra("swipeData",lstSwipeData.get(getAdapterPosition()));
-            mContext.startActivity(i);
-            ((HomeActivity) (mContext)).finish();
+            if(!AppController.getInstance().getDatabaseHandler().isSwipeDateHoliday(lstSwipeData.get(getAdapterPosition()).getSwipeDate())) {
+                Intent i = new Intent(mContext, TimeActivity.class);
+                i.putExtra("swipeData", lstSwipeData.get(getAdapterPosition()));
+                mContext.startActivity(i);
+                ((HomeActivity) (mContext)).finish();
+            }
         }
+
+        @Override
+        public boolean onLongClick(View view) {
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
+            if(!AppController.getInstance().getDatabaseHandler().isSwipeDateHoliday(lstSwipeData.get(getAdapterPosition()).getSwipeDate())) {
+                alertDialog.setMessage("Mark this as holiday?");
+                alertDialog.setTitle("Holiday");
+                alertDialog.setIcon(R.drawable.ic_weekend_black_48dp);
+            }else{
+                alertDialog.setMessage("Mark this as work day?");
+                alertDialog.setTitle("Work Day");
+                alertDialog.setIcon(R.drawable.ic_query_builder_black_48dp);
+            }
+            alertDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    if(!AppController.getInstance().getDatabaseHandler().isSwipeDateHoliday(lstSwipeData.get(getAdapterPosition()).getSwipeDate())) {
+                        AppController.getInstance().getDatabaseHandler().updateSwipeDateAsHoliday(lstSwipeData.get(getAdapterPosition()).getSwipeDate());
+                    }else{
+                        AppController.getInstance().getDatabaseHandler().updateSwipeDateAsWorkDay(lstSwipeData.get(getAdapterPosition()).getSwipeDate());
+                    }
+                    onLongListener.onLongClicked(getAdapterPosition());
+                    dialog.cancel();
+                }
+            });
+            alertDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+            alertDialog.show();
+            return true;
+        }
+    }
+
+    public interface OnLongListener {
+        void onLongClicked(int position);
     }
 
 }

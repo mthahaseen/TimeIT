@@ -121,11 +121,11 @@ public class TimeConfigureActivity extends AppCompatActivity implements DaysDial
                     editor.putInt(AppConstants.PREF_END_DAY, dayEnd);
                     editor.putLong(AppConstants.PREF_APPROX_OFFICE_IN_TIME_MILLIS, AppUtil.convertHoursMinutesToMillis(officeInHour, officeInMinute));
                     editor.putLong(AppConstants.PREF_APPROX_OFFICE_OUT_TIME_MILLIS, AppUtil.convertHoursMinutesToMillis(officeOutHour, officeOutMinute));
-                    editor.putInt(AppConstants.PREF_DAY_DIFFERENCE, getDaysDifference(dayStart, dayEnd));
+                    editor.putInt(AppConstants.PREF_DAY_DIFFERENCE, AppUtil.getDaysDifference(dayStart, dayEnd));
                     editor.commit();
-                    AppController.getInstance().getDatabaseHandler().initializeWeekData(AppUtil.getWeekNumberOfTodayDate(), dayStart, getDaysDifference(dayStart, dayEnd));
-                    AppController.getInstance().getDatabaseHandler().initializeWeekData(AppUtil.getWeekNumberOfTodayDate() - 1, dayStart, getDaysDifference(dayStart, dayEnd));
-                    AppController.getInstance().getDatabaseHandler().initializeWeekData(AppUtil.getWeekNumberOfTodayDate() + 1, dayStart, getDaysDifference(dayStart, dayEnd));
+                    /*AppController.getInstance().getDatabaseHandler().initializeWeekData(AppUtil.getWeekNumberOfTodayDate(), dayStart, AppUtil.getDaysDifference(dayStart, dayEnd));
+                    AppController.getInstance().getDatabaseHandler().initializeWeekData(AppUtil.getWeekNumberOfTodayDate() - 1, dayStart, AppUtil.getDaysDifference(dayStart, dayEnd));
+                    AppController.getInstance().getDatabaseHandler().initializeWeekData(AppUtil.getWeekNumberOfTodayDate() + 1, dayStart, AppUtil.getDaysDifference(dayStart, dayEnd));*/
                     Intent intent = new Intent(TimeConfigureActivity.this,HomeActivity.class);
                     startActivity(intent);
                     finish();
@@ -246,13 +246,7 @@ public class TimeConfigureActivity extends AppCompatActivity implements DaysDial
         }
     }
 
-    public int getDaysDifference(int start, int end){
-        if(start < end){
-            return (end - start) + 1;
-        }else{
-            return  (7 - start) + 1 + end;
-        }
-    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -19,6 +19,8 @@ public class AppConstants {
     public static final String PREF_DAY_DIFFERENCE = "dayDifference";
     public static final String PREF_APPROX_OFFICE_IN_TIME_MILLIS = "approxOfficeInTimeMillis";
     public static final String PREF_APPROX_OFFICE_OUT_TIME_MILLIS = "approxOfficeOutTimeMillis";
+    public static final String PREF_TUTORIAL_ONE = "tutorialOne";
+    public static final String PREF_TUTORIAL_TWO = "tutorialTwo";
 
     public static final String SWIPE_IN = "Swipe In";
     public static final String SWIPE_OUT = "Swipe Out";

@@ -80,13 +80,21 @@ public class AppUtil {
                 result = true;
             }
         }else if(startDay > endDay){
-            if(today >= endDay && today<=startDay){
+            if((7-today) >= endDay && (7-today)<=startDay){
                 result = false;
             }else{
                 result = true;
             }
         }
         return result;
+    }
+
+    public static int getDaysDifference(int start, int end){
+        if(start < end){
+            return (end - start) + 1;
+        }else{
+            return  (7 - start) + 1 + end;
+        }
     }
 
 }
