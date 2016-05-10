@@ -1,17 +1,19 @@
 package com.overclocked.timeit.activity;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -29,6 +31,7 @@ import com.overclocked.timeit.fragments.RateReviewDialogFragment;
 import com.overclocked.timeit.fragments.TutorialOneDialogFragment;
 import com.overclocked.timeit.fragments.TutorialTwoDialogFragment;
 import com.overclocked.timeit.model.SwipeData;
+import com.overclocked.timeit.receiver.NotificationPublisher;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -253,30 +256,32 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewSwipe
     }
 
     public void startCountDown(String swipeDate){
-        Long count = 0L;
-            SwipeData item = AppController.getInstance().getDatabaseHandler().getOneSwipeData(swipeDate);
-            if (item.getSwipeInTime() != 0 && item.getSwipeOutTime() == 0) {
-                Long dailyTargetMillis = AppController.getInstance().getDatabaseHandler().calculateTodayTarget(weekNumber);
-                Calendar calendar = Calendar.getInstance();
-                Long diff = calendar.getTimeInMillis() - item.getSwipeInTime();
-                if(dailyTargetMillis!= 0L) {
-                    count = dailyTargetMillis - diff;
-                }else{
-                    count = preferences.getLong(AppConstants.PREF_AVG_SWIPE_MILLIS,0L) - diff;
+        Long count = getCountDownTimeInMillis(swipeDate);
+        if (count != 0L) {
+            cTimer = new CountDownTimer(count, 1000) {
+                public void onTick(long millisUntilFinished) {
+                    txtCountDown.setText("Leave in "+AppUtil.convertMillisToHoursMinutesSeconds(millisUntilFinished));
                 }
-            }
-            if (count != 0L) {
-                cTimer = new CountDownTimer(count, 1000) {
-                    public void onTick(long millisUntilFinished) {
-                        txtCountDown.setText("Leave in "+AppUtil.convertMillisToHoursMinutesSeconds(millisUntilFinished));
-                    }
+                public void onFinish() {}
+            };
+            cTimer.start();
+        }
+    }
 
-                    public void onFinish() {
-
-                    }
-                };
-                cTimer.start();
+    public Long getCountDownTimeInMillis(String SwipeDate){
+        Long count = 0L;
+        SwipeData item = AppController.getInstance().getDatabaseHandler().getOneSwipeData(SwipeDate);
+        if (item.getSwipeInTime() != 0 && item.getSwipeOutTime() == 0) {
+            Long dailyTargetMillis = AppController.getInstance().getDatabaseHandler().calculateTodayTarget(weekNumber);
+            Calendar calendar = Calendar.getInstance();
+            Long diff = calendar.getTimeInMillis() - item.getSwipeInTime();
+            if(dailyTargetMillis!= 0L) {
+                count = dailyTargetMillis - diff;
+            }else{
+                count = preferences.getLong(AppConstants.PREF_AVG_SWIPE_MILLIS,0L) - diff;
             }
+        }
+        return count;
     }
 
     public void showAlertDialog(){
@@ -317,6 +322,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewSwipe
                 setWeeklyAverage();
                 setDailyTarget();
                 startCountDown(AppUtil.getDateAsText(calendar));
+                scheduleCheckOutNotification();
             } else {
                 AppController.getInstance().getDatabaseHandler().updateSwipeOutTime(df.format(calendar.getTime()), calendar.getTimeInMillis());
                 fabCheckInOut.setImageResource(R.drawable.ic_done_all_white_48dp);
@@ -327,6 +333,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewSwipe
                 setDailyTarget();
                 if(cTimer!=null) cTimer.cancel();
                 txtCountDown.setText("");
+                cancelCheckOutNotification();
             }
             lstSwipe = AppController.getInstance().getDatabaseHandler().getSwipeData(weekNumber);
             recyclerViewSwipeData.removeAllViews();
@@ -337,4 +344,25 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewSwipe
             Toast.makeText(HomeActivity.this, "All Caught up. Have a great day!", Toast.LENGTH_SHORT).show();
         }
     }
+
+    private void scheduleCheckOutNotification() {
+        Calendar calendar = Calendar.getInstance();
+        long futureInMillis = SystemClock.elapsedRealtime() + getCountDownTimeInMillis(AppUtil.getDateAsText(calendar));
+        //long futureInMillis = SystemClock.elapsedRealtime() + (60*1000);
+        Intent notificationIntent = new Intent(this, NotificationPublisher.class);
+        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION,"swipeOut");
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 85128 , notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pendingIntent);
+    }
+
+    public  void cancelCheckOutNotification(){
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent notificationIntent = new Intent(this, NotificationPublisher.class);
+        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION,"swipeOut");
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 85128, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.cancel(pendingIntent);
+        pendingIntent.cancel();
+    }
+
 }

@@ -12,6 +12,12 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <receiver android:name=".receiver.NotificationPublisher" />
+        <receiver android:name=".receiver.SwipeInOutReceiver">
+            <intent-filter>
+            <action android:name="SWIPE_OUT_ACTION"/>
+            </intent-filter>
+        </receiver>
         <activity
             android:name=".activity.IntroActivity"
             android:label="@string/app_name"
