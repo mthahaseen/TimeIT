@@ -7,9 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.overclocked.timeit.AppController;
 import com.overclocked.timeit.R;
@@ -32,6 +30,7 @@ public class DaysDialogFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.days_dialog_fragment, null, false);
+        getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         mylist = (ListView) view.findViewById(R.id.listDays);
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         isStart = getArguments().getBoolean("isStart");

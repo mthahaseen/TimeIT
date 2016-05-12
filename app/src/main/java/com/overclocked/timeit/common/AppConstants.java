@@ -10,6 +10,7 @@ public class AppConstants {
     public static final int MIN_AVG_SWIPE_MINUTES = 0;
     public static final int MAX_AVG_SWIPE_MINUTES = 59;
     public static final int VERTICAL_ITEM_SPACE = 20;
+    public static final int VERTICAL_ITEM_SPACE_PRE_LOLLIPOP = 5;
     public static final String PREF_COMPANY_NAME = "companyName";
     public static final String PREF_COMPANY_LOGO = "companyLogo";
     public static final String PREF_INITIAL_TIME_CONFIG = "initialTimeConfig";

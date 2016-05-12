@@ -22,7 +22,7 @@ public class IntroActivity extends AppIntro2 {
 
     @Override
     public void onDonePressed() {
-        Intent intent = new Intent(IntroActivity.this,CompanySelectActivity.class);
+        Intent intent = new Intent(IntroActivity.this,TimeConfigureActivity.class);
         startActivity(intent);
         finish();
     }

@@ -3,8 +3,8 @@ package com.overclocked.timeit.activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,10 +16,13 @@ import android.widget.TextView;
 
 import com.overclocked.timeit.AppController;
 import com.overclocked.timeit.R;
+import com.overclocked.timeit.common.AppConstants;
 import com.overclocked.timeit.common.AppUtil;
 import com.overclocked.timeit.fragments.TimePickerDialogFragment;
 import com.overclocked.timeit.model.SwipeData;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import butterknife.Bind;
@@ -121,6 +124,12 @@ public class TimeActivity extends AppCompatActivity implements TimePickerDialogF
     @Override
     public void onTimeSelected(int hour, int minute, boolean isInTime){
         Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat(AppConstants.SWIPE_DATE_FORMAT);
+        try {
+            calendar.setTime(sdf.parse(swipeData.getSwipeDate()));
+        }catch (ParseException e){
+            e.printStackTrace();
+        }
         calendar.set(Calendar.HOUR_OF_DAY, hour);
         calendar.set(Calendar.MINUTE, minute);
         if(isInTime){
@@ -148,6 +157,15 @@ public class TimeActivity extends AppCompatActivity implements TimePickerDialogF
             txtAvgMinutes.setText("00");
         }else if(swipeData.getSwipeInTime() != 0 && swipeData.getSwipeOutTime() == 0){
             Calendar calendar = Calendar.getInstance();
+            SimpleDateFormat sdf = new SimpleDateFormat(AppConstants.SWIPE_DATE_FORMAT);
+            try {
+                calendar.setTime(sdf.parse(swipeData.getSwipeDate()));
+            }catch (ParseException e){
+                e.printStackTrace();
+            }
+            Calendar calendar1 = Calendar.getInstance();
+            calendar.set(Calendar.HOUR_OF_DAY,calendar1.get(Calendar.HOUR_OF_DAY));
+            calendar.set(Calendar.MINUTE,calendar1.get(Calendar.MINUTE));
             Long diff = calendar.getTimeInMillis() - swipeData.getSwipeInTime();
             txtAvgHours.setText(AppUtil.convertMillisToHours(diff));
             txtAvgMinutes.setText(AppUtil.convertMillisToMinutes(diff));

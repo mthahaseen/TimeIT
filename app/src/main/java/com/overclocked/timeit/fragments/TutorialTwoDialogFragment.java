@@ -8,6 +8,7 @@ import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -29,6 +30,7 @@ public class TutorialTwoDialogFragment extends DialogFragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.tutorial_two, container);
+        getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         Button btnDone = (Button) view.findViewById(R.id.btnDone);
         TextView txtSwipeDate = (TextView) view.findViewById(R.id.txtSwipeDate);
         final Calendar calendar = Calendar.getInstance();

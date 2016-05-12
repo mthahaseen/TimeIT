@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,9 +20,12 @@ import com.overclocked.timeit.AppController;
 import com.overclocked.timeit.R;
 import com.overclocked.timeit.activity.HomeActivity;
 import com.overclocked.timeit.activity.TimeActivity;
+import com.overclocked.timeit.common.AppConstants;
 import com.overclocked.timeit.common.AppUtil;
 import com.overclocked.timeit.model.SwipeData;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
@@ -86,6 +88,15 @@ public class RecyclerViewSwipeDataAdapter extends RecyclerView.Adapter<RecyclerV
                 viewHolder.txtSwipeStatus.setBackgroundColor(mContext.getResources().getColor(android.R.color.darker_gray));
             } else if (item.getSwipeInTime() != 0 && item.getSwipeOutTime() == 0) {
                 Calendar calendar = Calendar.getInstance();
+                SimpleDateFormat sdf = new SimpleDateFormat(AppConstants.SWIPE_DATE_FORMAT);
+                try {
+                    calendar.setTime(sdf.parse(item.getSwipeDate()));
+                }catch (ParseException e){
+                    e.printStackTrace();
+                }
+                Calendar calendar1 = Calendar.getInstance();
+                calendar.set(Calendar.HOUR_OF_DAY,calendar1.get(Calendar.HOUR_OF_DAY));
+                calendar.set(Calendar.MINUTE,calendar1.get(Calendar.MINUTE));
                 Long diff = calendar.getTimeInMillis() - item.getSwipeInTime();
                 viewHolder.txtSwipeDifference.setText(AppUtil.convertMillisToHours(diff) + " h " +
                         AppUtil.convertMillisToMinutes(diff) + " m");

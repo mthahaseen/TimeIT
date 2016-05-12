@@ -1,11 +1,14 @@
 package com.overclocked.timeit.activity;
 
+import android.animation.AnimatorInflater;
+import android.animation.ObjectAnimator;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.SystemClock;
@@ -21,6 +24,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.overclocked.timeit.AppController;
 import com.overclocked.timeit.R;
 import com.overclocked.timeit.adapter.RecyclerViewSwipeDataAdapter;
@@ -56,6 +62,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewSwipe
     @Bind(R.id.fabCheckInOut) ImageButton fabCheckInOut;
     @Bind(R.id.rlWeekend) RelativeLayout rlWeekend;
     @Bind(R.id.imgLogo) ImageView imgLogo;
+    @Bind(R.id.adView) AdView adView;
     SharedPreferences preferences;
     List<SwipeData> lstSwipe = new ArrayList<>();
     RecyclerViewSwipeDataAdapter recyclerViewSwipeDataAdapter;
@@ -92,6 +99,25 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewSwipe
             }else {
                 rlWeekend.setVisibility(View.GONE);
                 recyclerViewSwipeData.setVisibility(View.VISIBLE);
+                if(AppController.getInstance().getConnectionDetector().isConnectingToInternet()){
+                    AdRequest adRequest = new AdRequest.Builder()
+                            .build();
+                    adView.loadAd(adRequest);
+                    adView.setAdListener(new AdListener() {
+                        @Override
+                        public void onAdClosed() {
+                            super.onAdClosed();
+                            recyclerViewSwipeData.setPadding(5,5,5,0);
+                        }
+                        @Override
+                        public void onAdLoaded() {
+                            super.onAdLoaded();
+                            recyclerViewSwipeData.setPadding(5,5,5,100);
+                        }
+                    });
+                }else{
+
+                }
                 if (calendar.get(Calendar.DAY_OF_WEEK) < preferences.getInt(AppConstants.PREF_START_DAY, 1)) {
                     weekNumber = weekNumber - 1;
                     if (!AppController.getInstance().getDatabaseHandler().isWeekEntryAvailable(weekNumber)) {
@@ -109,7 +135,11 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewSwipe
                 setDailyTarget();
                 LinearLayoutManager linearLayoutManager = new LinearLayoutManager(HomeActivity.this);
                 recyclerViewSwipeData.setLayoutManager(linearLayoutManager);
-                recyclerViewSwipeData.addItemDecoration(new VerticalSpaceItemDecoration(AppConstants.VERTICAL_ITEM_SPACE));
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+                    recyclerViewSwipeData.addItemDecoration(new VerticalSpaceItemDecoration(AppConstants.VERTICAL_ITEM_SPACE));
+                }else{
+                    recyclerViewSwipeData.addItemDecoration(new VerticalSpaceItemDecoration(AppConstants.VERTICAL_ITEM_SPACE_PRE_LOLLIPOP));
+                }
                 recyclerViewSwipeDataAdapter = new RecyclerViewSwipeDataAdapter(HomeActivity.this, lstSwipe);
                 recyclerViewSwipeData.setAdapter(recyclerViewSwipeDataAdapter);
                 recyclerViewSwipeDataAdapter.setOnLongListener(this);
@@ -246,6 +276,9 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewSwipe
             lstSwipe = AppController.getInstance().getDatabaseHandler().getSwipeData(weekNumber);
             recyclerViewSwipeDataAdapter.notifyDataSetChanged();
         }
+        if (adView != null) {
+            adView.resume();
+        }
     }
 
     @Override
@@ -253,6 +286,17 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewSwipe
         super.onDestroy();
         if(cTimer!=null)
             cTimer.cancel();
+        if (adView != null) {
+            adView.destroy();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (adView != null) {
+            adView.pause();
+        }
     }
 
     public void startCountDown(String swipeDate){
@@ -315,14 +359,18 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewSwipe
             final DateFormat df = new SimpleDateFormat(AppConstants.SWIPE_DATE_FORMAT);
             if (!isCheckInDone) {
                 AppController.getInstance().getDatabaseHandler().updateSwipeInTime(df.format(calendar.getTime()), calendar.getTimeInMillis());
-                fabCheckInOut.setImageResource(R.drawable.ic_arrow_back_white_48dp);
-                fabCheckInOut.setBackgroundResource(R.drawable.rounded_button_swipe_out);
                 lblSwipe.setText(AppConstants.SWIPE_OUT);
                 isCheckInDone = true;
                 setWeeklyAverage();
                 setDailyTarget();
                 startCountDown(AppUtil.getDateAsText(calendar));
                 scheduleCheckOutNotification();
+                ObjectAnimator anim = (ObjectAnimator) AnimatorInflater.loadAnimator(this, R.animator.flipping);
+                anim.setTarget(fabCheckInOut);
+                anim.setDuration(1500);
+                anim.start();
+                fabCheckInOut.setImageResource(R.drawable.ic_arrow_back_white_48dp);
+                fabCheckInOut.setBackgroundResource(R.drawable.rounded_button_swipe_out);
             } else {
                 AppController.getInstance().getDatabaseHandler().updateSwipeOutTime(df.format(calendar.getTime()), calendar.getTimeInMillis());
                 fabCheckInOut.setImageResource(R.drawable.ic_done_all_white_48dp);

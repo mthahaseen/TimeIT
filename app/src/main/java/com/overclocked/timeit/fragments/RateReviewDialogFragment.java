@@ -5,7 +5,7 @@ import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.view.Window;
 import android.widget.TextView;
 
 import com.overclocked.timeit.R;
@@ -21,6 +21,7 @@ public class RateReviewDialogFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.rate_review, container);
+        getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         TextView txtRate = (TextView) view.findViewById(R.id.txtRate);
         TextView txtNoThanks = (TextView) view.findViewById(R.id.txtNoThanks);
         txtRate.setOnClickListener(new View.OnClickListener() {
