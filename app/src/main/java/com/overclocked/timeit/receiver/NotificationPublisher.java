@@ -11,8 +11,14 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
+import com.overclocked.timeit.AppController;
 import com.overclocked.timeit.R;
 import com.overclocked.timeit.activity.HomeActivity;
+import com.overclocked.timeit.common.AppConstants;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class NotificationPublisher extends BroadcastReceiver {
 
@@ -22,8 +28,10 @@ public class NotificationPublisher extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-
+        Calendar calendar = Calendar.getInstance();
+        final DateFormat df = new SimpleDateFormat(AppConstants.SWIPE_DATE_FORMAT);
         if(intent.getExtras().getString(NOTIFICATION).equals("swipeOut")) {
+            AppController.getInstance().getDatabaseHandler().updateSwipeDateReminder(df.format(calendar.getTime()),0);
             Intent swipeOutIntent = new Intent();
             swipeOutIntent.setAction("SWIPE_OUT_ACTION");
             PendingIntent pendingIntentSwipeOut = PendingIntent.getBroadcast(context, 12345, swipeOutIntent, PendingIntent.FLAG_UPDATE_CURRENT);

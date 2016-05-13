@@ -14,6 +14,7 @@ public class SwipeData implements Parcelable{
     Long swipeInTime;
     Long swipeOutTime;
     int holiday;
+    int reminder;
 
     @Override
     public int describeContents() {
@@ -27,6 +28,7 @@ public class SwipeData implements Parcelable{
         dest.writeLong(swipeInTime);
         dest.writeLong(swipeOutTime);
         dest.writeInt(holiday);
+        dest.writeInt(reminder);
     }
 
     private SwipeData(Parcel in) {
@@ -34,6 +36,7 @@ public class SwipeData implements Parcelable{
         this.swipeInTime = in.readLong();
         this.swipeOutTime = in.readLong();
         this.holiday = in.readInt();
+        this.reminder = in.readInt();
     }
     public static final Parcelable.Creator<SwipeData> CREATOR = new Parcelable.Creator<SwipeData>() {
 
@@ -78,5 +81,13 @@ public class SwipeData implements Parcelable{
 
     public void setHoliday(int holiday) {
         this.holiday = holiday;
+    }
+
+    public int getReminder() {
+        return reminder;
+    }
+
+    public void setReminder(int reminder) {
+        this.reminder = reminder;
     }
 }

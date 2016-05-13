@@ -57,6 +57,18 @@ public class AppUtil {
         return sdf.format(resultDate);
     }
 
+    public static int convertSwipeTimeToHours(Long timeInMillis){
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(timeInMillis);
+        return cal.get(Calendar.HOUR_OF_DAY);
+    }
+
+    public static int convertSwipeTimeToMinutes(Long timeInMillis){
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(timeInMillis);
+        return cal.get(Calendar.MINUTE);
+    }
+
     public static String convertMillisToHoursMinutesSeconds(Long millis){
         return String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(millis),
                 TimeUnit.MILLISECONDS.toMinutes(millis) % TimeUnit.HOURS.toMinutes(1),

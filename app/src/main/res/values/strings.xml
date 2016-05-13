@@ -1,4 +1,5 @@
 <resources>
+
     <string name="app_name">Time It</string>
     <string name="select_your_company">Select Your Company</string>
     <string name="set_time">Set Time</string>
@@ -9,6 +10,12 @@
     <string name="rate_now">RATE NOW</string>
     <string name="no_thanks">NO, THANKS</string>
     <string name="rate_text">We\'re glad you are enjoying using Time It App! Would you mind taking a moment to rate it? It won\'t take more than a minute. Thanks for your support!</string>
+    <string name="set_swipe_out_reminder">Set Swipe Out Reminder</string>
+    <string name="share_text">Share Time It with your friends and family. Help them to maintain healthy work life balance.</string>
+    <string name="share_now">SHARE NOW</string>
+    <string name="later">LATER</string>
+
     <!-- AdMob ad unit IDs -->
-    <string name="banner_home_bottom"></string>
+    <string name="banner_home_bottom">ca-app-pub-5013963260366540/2915553715</string>
+
 </resources>

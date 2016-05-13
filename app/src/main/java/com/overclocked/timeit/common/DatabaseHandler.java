@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import com.overclocked.timeit.model.Days;
 import com.overclocked.timeit.model.SwipeData;
@@ -44,6 +43,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String SWIPE_IN_TIME= "intime";
     private static final String SWIPE_OUT_TIME= "outtime";
     private static final String SWIPE_HOLIDAY= "holiday";
+    private static final String SWIPE_REMINDER= "reminder";
 
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -65,7 +65,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 + SWIPE_WEEK_NUMBER + " INTEGER,"
                 + SWIPE_IN_TIME + " INTEGER,"
                 + SWIPE_OUT_TIME + " INTEGER,"
-                + SWIPE_HOLIDAY + " INTEGER)";
+                + SWIPE_HOLIDAY + " INTEGER,"
+                + SWIPE_REMINDER + " INTEGER)";
 
         db.execSQL(CREATE_SWIPE_TABLE);
 
@@ -133,6 +134,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         contentValues.put(SWIPE_IN_TIME, startMillis);
         contentValues.put(SWIPE_OUT_TIME, endMillis);
         contentValues.put(SWIPE_HOLIDAY, 0);
+        contentValues.put(SWIPE_REMINDER, 0);
         db.insert(TABLE_SWIPE, null, contentValues);
         db.close();
     }
@@ -239,6 +241,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 swipe.setSwipeInTime(c.getLong(c.getColumnIndex(SWIPE_IN_TIME)));
                 swipe.setSwipeOutTime(c.getLong(c.getColumnIndex(SWIPE_OUT_TIME)));
                 swipe.setHoliday(c.getInt(c.getColumnIndex(SWIPE_HOLIDAY)));
+                swipe.setReminder(c.getInt(c.getColumnIndex(SWIPE_REMINDER)));
                 items.add(swipe);
             } while (c.moveToNext());
         }
@@ -275,6 +278,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 swipe.setSwipeInTime(c.getLong(c.getColumnIndex(SWIPE_IN_TIME)));
                 swipe.setSwipeOutTime(c.getLong(c.getColumnIndex(SWIPE_OUT_TIME)));
                 swipe.setHoliday(c.getInt(c.getColumnIndex(SWIPE_HOLIDAY)));
+                swipe.setReminder(c.getInt(c.getColumnIndex(SWIPE_REMINDER)));
         }
         c.close();
         db.close();
@@ -362,6 +366,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public void updateSwipeDateAsWorkDay(String swipeDate) {
         String Query = "update swipe set holiday = 0 where swipedate='" + swipeDate + "'";
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(Query);
+        db.close();
+    }
+
+    public void updateSwipeDateReminder(String swipeDate, int reminder) {
+        String Query = "update swipe set reminder = "+reminder+" where swipedate='" + swipeDate + "'";
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL(Query);
         db.close();

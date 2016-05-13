@@ -4,6 +4,14 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="com.overclocked.timeit.permission.C2D_MESSAGE" />
+    <!-- Keeps the processor from sleeping when a message is received. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- Creates a custom permission so only this app can receive its messages. -->
+    <permission
+        android:name="com.overclocked.timeit.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
 
     <application
         android:name=".AppController"
@@ -15,12 +23,23 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+        <meta-data android:name="LOCALYTICS_APP_KEY" android:value="983ace34d7f342590b58f61-099be170-11ed-11e6-6fd4-002dea3c3994"/>
         <receiver android:name=".receiver.NotificationPublisher" />
         <receiver android:name=".receiver.SwipeInOutReceiver">
             <intent-filter>
             <action android:name="SWIPE_OUT_ACTION"/>
             </intent-filter>
         </receiver>
+        <receiver
+            android:name=".receiver.MyPushReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="com.overclocked.timeit" />
+            </intent-filter>
+        </receiver>
+        <activity android:name="com.localytics.android.PushTrackingActivity"/>
         <activity
             android:name=".activity.IntroActivity"
             android:label="@string/app_name"

@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.localytics.android.LocalyticsActivityLifecycleCallbacks;
 import com.overclocked.timeit.common.ConnectionDetector;
 import com.overclocked.timeit.common.DatabaseHandler;
 
@@ -26,6 +27,8 @@ public class AppController extends Application {
     public void onCreate() {
         super.onCreate();
         mInstance = this;
+        registerActivityLifecycleCallbacks(
+                new LocalyticsActivityLifecycleCallbacks(this));
     }
 
     public static synchronized AppController getInstance() {

@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.localytics.android.Localytics;
 import com.overclocked.timeit.R;
 import com.overclocked.timeit.activity.TimeConfigureActivity;
 import com.overclocked.timeit.common.AppConstants;
@@ -18,7 +19,9 @@ import com.overclocked.timeit.common.ScaleImageView;
 import com.overclocked.timeit.model.Company;
 import com.squareup.picasso.Picasso;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -73,6 +76,9 @@ public class RecyclerViewCompanyAdapter extends RecyclerView.Adapter<RecyclerVie
 
         @Override
         public void onClick(View v){
+            Map<String, String> values = new HashMap<String, String>();
+            values.put("tag",companyList.get(getAdapterPosition()).getCompanyTag());
+            Localytics.tagEvent(AppConstants.LOCALYTICS_TAG_EVENT_COMPANY, values);
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString(AppConstants.PREF_COMPANY_NAME, companyList.get(getAdapterPosition()).getCompanyName());
             editor.putString(AppConstants.PREF_COMPANY_LOGO, companyList.get(getAdapterPosition()).getCompanyLogo());

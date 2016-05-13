@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.localytics.android.Localytics;
 import com.overclocked.timeit.AppController;
 import com.overclocked.timeit.R;
 import com.overclocked.timeit.common.AppConstants;
@@ -53,6 +54,7 @@ public class TimeConfigureActivity extends AppCompatActivity implements DaysDial
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_time_configure);
+        Localytics.tagScreen(AppConstants.LOCALYTICS_TAG_SCREEN_TIME_CONFIGURE);
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Time Settings");

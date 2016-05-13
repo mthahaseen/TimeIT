@@ -17,6 +17,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.localytics.android.Localytics;
 import com.overclocked.timeit.AppController;
 import com.overclocked.timeit.R;
 import com.overclocked.timeit.adapter.RecyclerViewCompanyAdapter;
@@ -33,7 +34,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class CompanySelectActivity extends AppCompatActivity {
+public class    CompanySelectActivity extends AppCompatActivity {
     @Bind(R.id.recyclerViewCompany) RecyclerView recyclerViewCompany;
     @Bind(R.id.toolbar) Toolbar toolbar;
     private ProgressDialog mProgress;
@@ -46,6 +47,7 @@ public class CompanySelectActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Select Your Company");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Localytics.tagScreen(AppConstants.LOCALYTICS_TAG_SCREEN_COMPANY_SELECT);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(CompanySelectActivity.this,2);
         recyclerViewCompany.setLayoutManager(gridLayoutManager);
         if(AppController.getInstance().getConnectionDetector().isConnectingToInternet()){

@@ -16,6 +16,7 @@ import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.localytics.android.Localytics;
 import com.overclocked.timeit.AppController;
 import com.overclocked.timeit.R;
 import com.overclocked.timeit.activity.HomeActivity;
@@ -41,12 +42,14 @@ public class RecyclerViewSwipeDataAdapter extends RecyclerView.Adapter<RecyclerV
     private Context mContext;
     private SharedPreferences preferences;
     private OnLongListener onLongListener;
-    private final static int FADE_DURATION = 500; // in milliseconds
+    private int weekNumber;
+    private final static int FADE_DURATION = 500;// in milliseconds
 
-    public RecyclerViewSwipeDataAdapter(Context context, List<SwipeData> itemList) {
+    public RecyclerViewSwipeDataAdapter(Context context, List<SwipeData> itemList, int weekNumber) {
         this.lstSwipeData = itemList;
         this.mContext = context;
         this.preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        this.weekNumber = weekNumber;
     }
 
     private void setScaleAnimation(View view) {
@@ -142,9 +145,11 @@ public class RecyclerViewSwipeDataAdapter extends RecyclerView.Adapter<RecyclerV
 
         @Override
         public void onClick(View view) {
+            Localytics.tagEvent(AppConstants.LOCALYTICS_TAG_EVENT_SWIPE_DATA_CLICK);
             if(!AppController.getInstance().getDatabaseHandler().isSwipeDateHoliday(lstSwipeData.get(getAdapterPosition()).getSwipeDate())) {
                 Intent i = new Intent(mContext, TimeActivity.class);
                 i.putExtra("swipeData", lstSwipeData.get(getAdapterPosition()));
+                i.putExtra("weekNumber", weekNumber);
                 mContext.startActivity(i);
                 ((HomeActivity) (mContext)).finish();
             }
@@ -152,6 +157,7 @@ public class RecyclerViewSwipeDataAdapter extends RecyclerView.Adapter<RecyclerV
 
         @Override
         public boolean onLongClick(View view) {
+            Localytics.tagEvent(AppConstants.LOCALYTICS_TAG_EVENT_SWIPE_DATA_LONG_CLICK);
             AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
             if(!AppController.getInstance().getDatabaseHandler().isSwipeDateHoliday(lstSwipeData.get(getAdapterPosition()).getSwipeDate())) {
                 alertDialog.setMessage("Mark this as holiday?");

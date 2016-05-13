@@ -128,7 +128,26 @@
             android:layout_centerVertical="true"
             android:src="@drawable/ic_create_white_48dp"/>
     </RelativeLayout>
-
-
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:background="@android:color/white"/>
+    <Button
+        android:id="@+id/btnReminder"
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:layout_marginTop="20dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:fontFamily="sans-serif-light"
+        android:textColor="@android:color/white"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/btn_reminder_change"
+        android:text="@string/set_swipe_out_reminder"
+        android:drawableLeft="@drawable/ic_done_white_24dp"
+        android:drawablePadding="10dp"
+        android:gravity="center"/>
 
 </LinearLayout>

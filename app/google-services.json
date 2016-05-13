@@ -1,0 +1,35 @@
+{
+  "project_info": {
+    "project_number": "997911950305",
+    "project_id": "timeit-1309"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:997911950305:android:f704140be2dd00e2",
+        "android_client_info": {
+          "package_name": "com.overclocked.timeit"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDLwzNWsH6VRgudbuukdh5N1tZMIKEqLM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
