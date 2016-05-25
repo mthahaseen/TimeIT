@@ -17,7 +17,7 @@ public class IntroActivity extends AppIntro2 {
 
         // Instead of fragments, you can also use our default slide
         // Just set a title, description, background and image. AppIntro will do the rest.
-        addSlide(AppIntroFragment.newInstance("Time It", "Maintain Work Life Balance", R.drawable.work_life_balance, Color.parseColor("#7DCCB6")));
+        addSlide(AppIntroFragment.newInstance("True Time", "Maintain Work Life Balance", R.drawable.work_life_balance, Color.parseColor("#7DCCB6")));
         addSlide(AppIntroFragment.newInstance("Get Notified", "Get notified on when you should leave for the day by maintaining your average swipe hours of the week.", R.drawable.notify, Color.parseColor("#50B9CD")));
         setProgressButtonEnabled(true);
         Localytics.tagScreen(AppConstants.LOCALYTICS_TAG_SCREEN_INTRO);
