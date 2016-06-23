@@ -7,6 +7,7 @@ import android.os.Bundle;
 import com.github.paolorotolo.appintro.AppIntro2;
 import com.github.paolorotolo.appintro.AppIntroFragment;
 import com.localytics.android.Localytics;
+import com.overclocked.timeit.AppController;
 import com.overclocked.timeit.R;
 import com.overclocked.timeit.common.AppConstants;
 
@@ -25,7 +26,12 @@ public class IntroActivity extends AppIntro2 {
 
     @Override
     public void onDonePressed() {
-        Intent intent = new Intent(IntroActivity.this,CompanySelectActivity.class);
+        Intent intent;
+        if(AppController.getInstance().getConnectionDetector().isConnectingToInternet()) {
+            intent = new Intent(IntroActivity.this, CompanySelectActivity.class);
+        }else{
+            intent = new Intent(IntroActivity.this, TimeConfigureActivity.class);
+        }
         startActivity(intent);
         finish();
     }

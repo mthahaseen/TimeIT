@@ -44,13 +44,13 @@ public class NotificationPublisher extends BroadcastReceiver {
                             PendingIntent.FLAG_CANCEL_CURRENT);
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
                     .setSmallIcon(getNotificationIcon())
-                    .setContentTitle("Time It : Swipe Out")
-                    .setContentText("It's time to leave for the day. :-) :-)")
-                    .addAction(R.drawable.ic_arrow_back_black_48dp, "Swipe Out", pendingIntentSwipeOut)
-                    .setStyle(new NotificationCompat.BigTextStyle().bigText("It's time to leave for the day. :-) :-)"));
+                    .setContentTitle("True Time : Swipe Out")
+                    .setContentText("It's time to leave for the day. \uD83D\uDE0E")
+                    .addAction(R.drawable.ic_arrow_back_black_18dp, "Swipe Out", pendingIntentSwipeOut)
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText("It's time to leave for the day. \uD83D\uDE0E"));
             mBuilder.setContentIntent(resultPendingIntent);
             mBuilder.setAutoCancel(true);  // for removing the notification post click
-            mBuilder.setColor(context.getResources().getColor(R.color.colorPrimary));
+            mBuilder.setColor(context.getResources().getColor(R.color.true_orange));
             notificationManager.notify(NOTIFICATION_ID, mBuilder.build());
             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             Ringtone r = RingtoneManager.getRingtone(context, notification);
@@ -60,7 +60,6 @@ public class NotificationPublisher extends BroadcastReceiver {
     }
 
     private int getNotificationIcon() {
-        boolean whiteIcon = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
-        return whiteIcon ? R.drawable.ic_watch_white_48dp : R.drawable.ic_launcher;
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? R.drawable.ic_watch_white_48dp : R.drawable.ic_launcher;
     }
 }

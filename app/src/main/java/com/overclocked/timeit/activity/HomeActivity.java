@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -264,7 +265,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewSwipe
                 if (AppController.getInstance().getDatabaseHandler().isTodayCheckOutDone()) {
                     fabCheckInOut.setImageResource(R.drawable.ic_done_all_white_48dp);
                     fabCheckInOut.setBackgroundResource(R.drawable.rounded_button_swipe_done);
-                    lblSwipe.setText(":-) :-)");
+                    lblSwipe.setText("\uD83D\uDE0E");
                     isCheckOutDone = true;
                 } else {
                     fabCheckInOut.setImageResource(R.drawable.ic_arrow_back_white_48dp);
@@ -437,7 +438,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewSwipe
                 AppController.getInstance().getDatabaseHandler().updateSwipeOutTime(df.format(calendar.getTime()), calendar.getTimeInMillis());
                 fabCheckInOut.setImageResource(R.drawable.ic_done_all_white_48dp);
                 fabCheckInOut.setBackgroundResource(R.drawable.rounded_button_swipe_done);
-                lblSwipe.setText(":-) :-)");
+                lblSwipe.setText("\uD83D\uDE0E");
                 isCheckOutDone = true;
                 setWeeklyAverage();
                 setDailyTarget();
@@ -458,7 +459,7 @@ public class HomeActivity extends AppCompatActivity implements RecyclerViewSwipe
 
     private void scheduleCheckOutNotification() {
         Calendar calendar = Calendar.getInstance();
-        long futureInMillis = calendar.getTimeInMillis() + getCountDownTimeInMillis(AppUtil.getDateAsText(calendar));
+        long futureInMillis = SystemClock.elapsedRealtime() + getCountDownTimeInMillis(AppUtil.getDateAsText(calendar));
         Intent notificationIntent = new Intent(this, NotificationPublisher.class);
         notificationIntent.putExtra(NotificationPublisher.NOTIFICATION,"swipeOut");
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 85128 , notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);

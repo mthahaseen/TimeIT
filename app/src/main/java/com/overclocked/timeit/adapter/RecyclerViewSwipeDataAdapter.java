@@ -75,6 +75,19 @@ public class RecyclerViewSwipeDataAdapter extends RecyclerView.Adapter<RecyclerV
     public void onBindViewHolder(SwipeViewHolder viewHolder, int i) {
         SwipeData item = lstSwipeData.get(i);
         viewHolder.txtSwipeDate.setText(item.getSwipeDate());
+        if(item.getSwipeDate().equals(AppUtil.getDateAsText(Calendar.getInstance()))){
+            if (item.getSwipeInTime() != 0 && item.getSwipeOutTime() != 0) {
+                viewHolder.imgReminder.setVisibility(View.GONE);
+            }else{
+                if (item.getReminder() == 1) {
+                    viewHolder.imgReminder.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_notifications_active_white_18dp));
+                } else {
+                    viewHolder.imgReminder.setImageDrawable(mContext.getResources().getDrawable(R.drawable.ic_notifications_off_white_18dp));
+                }
+            }
+        }else{
+            viewHolder.imgReminder.setVisibility(View.GONE);
+        }
         if(item.getSwipeInTime() == 0){
             viewHolder.txtSwipeInTime.setText("-- : --");
         }else{
@@ -135,6 +148,7 @@ public class RecyclerViewSwipeDataAdapter extends RecyclerView.Adapter<RecyclerV
         @Bind(R.id.txtSwipeDifference) protected TextView txtSwipeDifference;
         @Bind(R.id.txtSwipeStatus) protected TextView txtSwipeStatus;
         @Bind(R.id.imgSwipeType) protected ImageView imgSwipeType;
+        @Bind(R.id.imgReminder) protected ImageView imgReminder;
 
         public SwipeViewHolder(View view) {
             super(view);

@@ -8,10 +8,10 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -252,7 +252,7 @@ public class TimeActivity extends AppCompatActivity implements TimePickerDialogF
 
     private void scheduleCheckOutNotification() {
         Calendar calendar = Calendar.getInstance();
-        long futureInMillis = calendar.getTimeInMillis() + getCountDownTimeInMillis(AppUtil.getDateAsText(calendar));
+        long futureInMillis =  SystemClock.elapsedRealtime() + getCountDownTimeInMillis(AppUtil.getDateAsText(calendar));
         Intent notificationIntent = new Intent(this, NotificationPublisher.class);
         notificationIntent.putExtra(NotificationPublisher.NOTIFICATION,"swipeOut");
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 85128 , notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
